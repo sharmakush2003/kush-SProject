@@ -572,8 +572,7 @@
             const toastContainer = document.getElementById('toast-container');
             const addCategoryBtn = document.getElementById('add-category-btn');
             const welcomeMessageElement = document.getElementById('welcome-message'); 
-            // REMOVED: desktopRecommendation elements and related close button
-
+            
             // Modals and their forms
             const editModal = document.getElementById('edit-modal');
             const editForm = document.getElementById('edit-form');
@@ -588,8 +587,6 @@
             let currentEditId = null;
             let sortConfig = JSON.parse(localStorage.getItem('sortConfig')) || { key: 'date', direction: 'desc' }; // Default sort by date descending
 
-            // REMOVED: desktopRecommendationTimeout; // No longer needed
-
             // --- Helper Functions ---
 
             // New helper function to strip emojis
@@ -600,6 +597,7 @@
 
             const toLocalDateInput = (dateString) => {
                 if (!dateString) return '';
+                // Ensure date is treated as UTC to prevent timezone issues shifting date
                 const date = new Date(dateString + 'T00:00:00Z'); 
                 return date.toISOString().split('T')[0]; 
             };
@@ -653,12 +651,9 @@
                 }
             };
 
-            // --- Local Storage Management ---
-            const saveExpenses = () => {
+            // --- Local Storage Management (now purely for persistence) ---
+            const persistExpensesToLocalStorage = () => {
                 localStorage.setItem('expenses', JSON.stringify(expenses));
-                renderExpenses();
-                updateTotal();
-                updateExpenseSummary();
             };
 
             const saveCategories = () => {
@@ -690,7 +685,6 @@
                     }
                 } 
                 else if (inputElement.id === 'new-category-name') {
-                    // Remove emojis before checking for duplicates for consistency
                     const cleanedNewCatName = stripEmojis(inputElement.value);
                     const categoryExists = categories.some(cat => 
                         stripEmojis(cat).toLowerCase() === cleanedNewCatName.toLowerCase()
@@ -705,6 +699,7 @@
                     const startVal = startDateFilter.value;
                     const endVal = endDateFilter.value;
 
+                    // Clear previous date errors before re-validating the pair
                     const clearDateErrors = () => {
                         startDateFilter.classList.remove('invalid');
                         if (startDateFilter.closest('.form-control')?.querySelector('.error-message')) startDateFilter.closest('.form-control').querySelector('.error-message').textContent = '';
@@ -725,6 +720,8 @@
                             if (endDateFilter.closest('.form-control')?.querySelector('.error-message')) endDateFilter.closest('.form-control').querySelector('.error-message').textContent = errorMessage;
                         }
                     }
+                    // For date filters, we validate them as a pair.
+                    // This specific validation (returning isValid immediately) prevents the individual element's state from overriding the pair's.
                     if (inputElement.id === 'start-date-filter' || inputElement.id === 'end-date-filter') return isValid;
                 }
 
@@ -763,7 +760,56 @@
                 });
             };
 
-            // --- UI Rendering & Updates ---
+            // --- UI Rendering & Updates (optimized) ---
+
+            const createExpenseRow = (expense) => {
+                const tr = document.createElement('tr');
+                tr.className = 'expense-item';
+                tr.dataset.id = expense.id; // Store ID on the row for easy lookup
+                
+                const date = new Date(expense.date + 'T00:00:00Z'); 
+                const formattedDate = date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+                
+                tr.innerHTML = `
+                    <td data-label="Date">${formattedDate}</td>
+                    <td data-label="Category">${stripEmojis(expense.category)}</td> 
+                    <td data-label="Description">${expense.description}</td>
+                    <td data-label="Amount" class="col-amount">${formatCurrency(expense.amount)}</td>
+                    <td data-label="Actions" class="col-actions">
+                        <button class="action-btn edit-btn" data-id="${expense.id}" title="Edit" aria-label="Edit expense"><i class="fas fa-edit" aria-hidden="true"></i></button>
+                        <button class="action-btn duplicate-btn" data-id="${expense.id}" title="Duplicate" aria-label="Duplicate expense"><i class="fas fa-copy" aria-hidden="true"></i></button>
+                        <button class="action-btn delete-btn" data-id="${expense.id}" title="Delete" aria-label="Delete expense"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                    </td>
+                `;
+                return tr;
+            };
+
+            const renderExpenses = () => {
+                const expensesToRender = getFilteredAndSortedExpenses(); 
+                expenseTableBody.innerHTML = ''; // Clear existing rows (needed for sort/filter)
+
+                if (expensesToRender.length === 0) {
+                    const message = expenses.length === 0 
+                        ? 'No expenses added yet. Start by using the form above! 📝' 
+                        : 'No expenses match your current filters and date range. 🧐 Try adjusting your filters!';
+                    expenseTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 25px 0; color: rgba(255,255,255,0.7);">${message}</td></tr>`;
+                } else {
+                    expensesToRender.forEach((expense, index) => {
+                        const tr = createExpenseRow(expense);
+                        tr.style.animationDelay = `${Math.min(index * 50, 500)}ms`; // Fade in animation delay
+                        expenseTableBody.appendChild(tr);
+                    });
+                }
+                updateSortIcons();
+            };
+
+            // Call this to trigger full re-render on sort/filter change
+            const updateExpenseTableAndSummary = () => {
+                renderExpenses(); // Full re-render needed for sort/filter
+                updateTotal();
+                updateExpenseSummary();
+            };
+
             const populateCategoryDropdowns = () => {
                 const dropdowns = [
                     document.getElementById('expense-category'),
@@ -778,24 +824,22 @@
                     if (index === 2) { 
                         const allOption = document.createElement('option');
                         allOption.value = 'all';
-                        allOption.textContent = 'All Categories'; // No emoji here
+                        allOption.textContent = 'All Categories'; 
                         dropdown.appendChild(allOption);
                     }
 
                     categories.slice().sort((a, b) => {
-                        // Sort by text part of category name (ignoring emojis for sorting purposes)
                         const cleanA = stripEmojis(a);
                         const cleanB = stripEmojis(b);
                         return cleanA.localeCompare(cleanB);
                     }).forEach(cat => {
                         const option = document.createElement('option');
-                        // Store the category with original emoji (if any) as value
                         option.value = cat; 
-                        // Display the cleaned name without emoji
                         option.textContent = stripEmojis(cat); 
                         dropdown.appendChild(option);
                     });
 
+                    // Attempt to restore selection, else set default
                     if (Array.from(dropdown.options).some(opt => opt.value === currentSelected)) {
                         dropdown.value = currentSelected;
                     } else if (index === 2) { 
@@ -814,7 +858,7 @@
 
             const updateExpenseSummary = () => {
                 const summaryContentDiv = document.getElementById('expense-summary-content');
-                summaryContentDiv.innerHTML = '';
+                summaryContentDiv.innerHTML = ''; // Clear for update
 
                 if (expenses.length === 0) {
                     summaryContentDiv.innerHTML = `
@@ -838,7 +882,6 @@
 
                 const calculateSpendingByCategory = (expenseList) => {
                     return expenseList.reduce((acc, exp) => {
-                        // Ensure category names are stripped of emojis for consistent grouping in summary
                         const categoryName = stripEmojis(exp.category);
                         acc[categoryName] = (acc[categoryName] || 0) + exp.amount;
                         return acc;
@@ -881,7 +924,7 @@
                     const percentage = (diff / totalLastMonthSpent) * 100;
                     monthlyComparisonHtml = `
                         <p class="good-news">
-                            <i class="fas fa-arrow-trend-down" aria-hidden="true"></i> Excellent! You spent <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% less)</strong> in ${currentMonthName} compared to ${lastMonthName}'s ${formatCurrency(totalCurrentMonthSpent)}. Keep up the smart saving! ✨
+                            <i class="fas fa-arrow-trend-down" aria-hidden="true"></i> Excellent! You spent <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% less)</strong> in ${currentMonthName} compared to ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Keep up the smart saving! ✨
                         </p>
                     `;
                 } else if (totalCurrentMonthSpent === totalLastMonthSpent && totalCurrentMonthSpent > 0) {
@@ -903,7 +946,6 @@
                     if (sortedCategories.length > 0) {
                         const topCategoriesText = sortedCategories.map(([category, amount]) => {
                             const percentOfTotal = (amount / totalCurrentMonthSpent) * 100;
-                            // Display the stripped category name in summary
                             return `<strong>${stripEmojis(category)}</strong> (${formatCurrency(amount)}, ${percentOfTotal.toFixed(1)}% of total)`;
                         }).join(', ');
                         summaryContentDiv.innerHTML += `
@@ -958,42 +1000,6 @@
                 `;
             };
 
-
-            const renderExpenses = () => {
-                const expensesToRender = getFilteredAndSortedExpenses(); 
-                expenseTableBody.innerHTML = '';
-
-                if (expensesToRender.length === 0) {
-                    const message = expenses.length === 0 
-                        ? 'No expenses added yet. Start by using the form above! 📝' 
-                        : 'No expenses match your current filters and date range. 🧐 Try adjusting your filters!';
-                    expenseTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 25px 0; color: rgba(255,255,255,0.7);">${message}</td></tr>`;
-                } else {
-                    expensesToRender.forEach((expense, index) => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'expense-item';
-                        tr.style.animationDelay = `${Math.min(index * 50, 500)}ms`; 
-                        
-                        const date = new Date(expense.date + 'T00:00:00Z'); 
-                        const formattedDate = date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
-                        
-                        tr.innerHTML = `
-                            <td data-label="Date">${formattedDate}</td>
-                            <td data-label="Category">${stripEmojis(expense.category)}</td> <!-- Strip emoji for table display -->
-                            <td data-label="Description">${expense.description}</td>
-                            <td data-label="Amount" class="col-amount">${formatCurrency(expense.amount)}</td>
-                            <td data-label="Actions" class="col-actions">
-                                <button class="action-btn edit-btn" data-id="${expense.id}" title="Edit"><i class="fas fa-edit" aria-hidden="true"></i></button>
-                                <button class="action-btn duplicate-btn" data-id="${expense.id}" title="Duplicate"><i class="fas fa-copy" aria-hidden="true"></i></button>
-                                <button class="action-btn delete-btn" data-id="${expense.id}" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
-                            </td>
-                        `;
-                        expenseTableBody.appendChild(tr);
-                    });
-                }
-                updateSortIcons();
-            };
-
             const updateSortIcons = () => {
                 document.querySelectorAll('.expense-table th').forEach(header => {
                     const sortKey = header.dataset.sortBy;
@@ -1024,11 +1030,7 @@
                 }
                 welcomeMessageElement.textContent = `Hello, ${userName}! Let's track your expenses. 📊`;
             };
-
-            // REMOVED: Desktop Recommendation Logic and its related functions (showDesktopRecommendation, hideDesktopRecommendation, checkScreenSizeForRecommendation)
-            // REMOVED: localStorage.setItem('dismissedDesktopRecommendation', 'true'); // No longer needed
-            // REMOVED: desktopRecommendationCloseBtn.addEventListener('click', ...)
-
+            
             // --- Event Listeners ---
             document.getElementById('expense-date').valueAsDate = new Date();
 
@@ -1042,12 +1044,31 @@
                 const newExpense = {
                     id: Date.now(), 
                     date: toLocalDateInput(document.getElementById('expense-date').value),
-                    category: document.getElementById('expense-category').value, // This stores the category name, possibly with emoji
+                    category: document.getElementById('expense-category').value, 
                     description: document.getElementById('expense-description').value.trim(),
                     amount: parseFloat(document.getElementById('expense-amount').value),
                 };
-                expenses.push(newExpense);
-                saveExpenses();
+                
+                expenses.unshift(newExpense); // Add to the beginning for immediate display without re-sorting
+                persistExpensesToLocalStorage();
+
+                // Append the new row directly
+                const newRow = createExpenseRow(newExpense);
+                // If the table is filtered/sorted, we still need to decide where to put the new item.
+                // For simplicity for `Add Expense`, we'll assume adding to top if filters allow it.
+                // If current filters don't include this new item, it won't appear until filters change.
+                const expensesToRender = getFilteredAndSortedExpenses();
+                if (expensesToRender[0] && expensesToRender[0].id === newExpense.id) { // Check if new item is top of the sorted list
+                     expenseTableBody.prepend(newRow); // Add at the top for immediate visibility
+                     if (expenseTableBody.querySelector('td[colspan="5"]')) { // Remove "No expenses" message if present
+                        expenseTableBody.querySelector('td[colspan="5"]').parentElement.remove();
+                    }
+                } else {
+                    renderExpenses(); // If new item wouldn't naturally be at the top of filtered/sorted, re-render
+                }
+
+                updateTotal();
+                updateExpenseSummary();
                 expenseForm.reset();
                 document.getElementById('expense-date').valueAsDate = new Date(); 
                 clearValidationErrors(expenseForm);
@@ -1059,35 +1080,61 @@
                 if (!button) return;
 
                 const id = parseInt(button.dataset.id);
-                const rowIndex = expenses.findIndex(exp => exp.id === id);
-                if (rowIndex === -1) {
+                const expenseIndex = expenses.findIndex(exp => exp.id === id);
+                if (expenseIndex === -1) {
                     showToast('Expense not found! 🤷', 'error');
                     return;
                 }
 
+                const row = button.closest('tr'); // Get the row element for the expense
+
                 if (button.classList.contains('delete-btn')) {
-                    const rowToDelete = button.closest('tr');
-                    if(rowToDelete) { 
-                        rowToDelete.classList.add('item-exit');
-                        rowToDelete.addEventListener('animationend', () => {
-                            expenses.splice(rowIndex, 1);
-                            saveExpenses();
+                    if(row) { 
+                        row.classList.add('item-exit');
+                        row.addEventListener('animationend', () => {
+                            expenses.splice(expenseIndex, 1);
+                            persistExpensesToLocalStorage();
+                            row.remove(); // Directly remove the row from the DOM
+                            updateTotal();
+                            updateExpenseSummary();
+                            // If table becomes empty, display the "No expenses" message
+                            if (expenseTableBody.children.length === 0 || expenseTableBody.children[0].tagName === 'TR' && expenseTableBody.children[0].children[0].getAttribute('colspan') === '5') {
+                                // This check handles if after deleting, filters leave an empty visible list
+                                renderExpenses(); 
+                            }
                             showToast('Expense Deleted. 🗑️', 'info');
                         }, { once: true });
                     }
                 } else if (button.classList.contains('duplicate-btn')) {
-                    const expenseToDuplicate = expenses[rowIndex];
+                    const expenseToDuplicate = expenses[expenseIndex];
                     const duplicatedExpense = { 
                         ...expenseToDuplicate, 
                         id: Date.now(), 
                         date: toLocalDateInput(new Date().toISOString()), 
                         description: `(Copy) ${expenseToDuplicate.description}`
                     };
-                    expenses.push(duplicatedExpense);
-                    saveExpenses();
+                    
+                    expenses.unshift(duplicatedExpense); // Add to the beginning
+                    persistExpensesToLocalStorage();
+
+                    const newRow = createExpenseRow(duplicatedExpense);
+                    // Again, assume prepending for simplicity, re-render if filters conflict
+                    const expensesToRender = getFilteredAndSortedExpenses();
+                    if (expensesToRender[0] && expensesToRender[0].id === duplicatedExpense.id) {
+                         expenseTableBody.prepend(newRow);
+                         if (expenseTableBody.querySelector('td[colspan="5"]')) { // Remove "No expenses" message if present
+                            expenseTableBody.querySelector('td[colspan="5"]').parentElement.remove();
+                        }
+                    } else {
+                        renderExpenses(); // Re-render if new item isn't at the top after sorting/filtering
+                    }
+                    
+                    updateTotal();
+                    updateExpenseSummary();
                     showToast('Expense Duplicated! 📋', 'info');
+
                 } else if (button.classList.contains('edit-btn')) {
-                    const expenseToEdit = expenses[rowIndex];
+                    const expenseToEdit = expenses[expenseIndex];
                     currentEditId = id;
                     document.getElementById('edit-date').value = toLocalDateInput(expenseToEdit.date);
                     document.getElementById('edit-category').value = expenseToEdit.category;
@@ -1107,14 +1154,35 @@
 
                 const expenseIndex = expenses.findIndex(exp => exp.id === currentEditId);
                 if (expenseIndex > -1) {
-                    expenses[expenseIndex] = {
+                    const updatedExpense = {
                         id: currentEditId,
                         date: toLocalDateInput(document.getElementById('edit-date').value),
-                        category: document.getElementById('edit-category').value, // Category may retain emoji if chosen
+                        category: document.getElementById('edit-category').value, 
                         description: document.getElementById('edit-description').value.trim(),
                         amount: parseFloat(document.getElementById('edit-amount').value),
                     };
-                    saveExpenses();
+                    expenses[expenseIndex] = updatedExpense;
+                    persistExpensesToLocalStorage();
+
+                    // Find the existing row by ID and update its contents
+                    const existingRow = expenseTableBody.querySelector(`tr[data-id="${currentEditId}"]`);
+                    if (existingRow) {
+                        const date = new Date(updatedExpense.date + 'T00:00:00Z'); 
+                        const formattedDate = date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+
+                        // Update individual cells, or replace innerHTML but keep event listeners via parent
+                        // A more robust way would be to create new TDs, but for small changes direct content is fine.
+                        existingRow.children[0].textContent = formattedDate; // Date
+                        existingRow.children[1].textContent = stripEmojis(updatedExpense.category); // Category
+                        existingRow.children[2].textContent = updatedExpense.description; // Description
+                        existingRow.children[3].textContent = formatCurrency(updatedExpense.amount); // Amount (assuming it's the 4th td)
+                    } else {
+                        // If for some reason the row wasn't found (e.g., it was filtered out), re-render the whole table.
+                        renderExpenses();
+                    }
+                    
+                    updateTotal();
+                    updateExpenseSummary();
                     showToast('Changes Saved! ✨', 'success');
                 }
                 closeModal(editModal);
@@ -1134,9 +1202,8 @@
 
                 if (!validateInput(newCatNameInput)) return; 
                 
-                // Store the new category with emoji stripped, as it was validated without emoji for duplicates
                 categories.push(stripEmojis(newCategoryName)); 
-                saveCategories();
+                saveCategories(); // This will also re-populate dropdowns
                 closeModal(addCategoryModal);
                 showToast(`Category "${newCategoryName}" Added! 🎉`, 'success');
             });
@@ -1161,37 +1228,37 @@
 
             confirmClearDataBtn.addEventListener('click', () => {
                 expenses = [];
-                categories = [...DEFAULT_CATEGORIES]; // Resets categories to non-emoji defaults
+                categories = [...DEFAULT_CATEGORIES]; 
                 localStorage.clear();
 
-                // Re-save initial configurations for a fresh start without persistent filters/sort
                 sortConfig = { key: 'date', direction: 'desc' };
                 localStorage.setItem('sortConfig', JSON.stringify(sortConfig));
-                // REMOVED: localStorage.setItem('dismissedDesktopRecommendation', 'false'); // No longer needed
                 
-                saveExpenses(); // This will also re-render/update totals/summary
+                persistExpensesToLocalStorage(); 
                 saveCategories(); // This will populate dropdowns with default categories
                 updateWelcomeMessage(); 
                 
-                // Clear filters
+                // Clear filters and re-render everything from scratch
                 categoryFilter.value = 'all';
                 startDateFilter.value = '';
                 endDateFilter.value = '';
+                updateExpenseTableAndSummary(); // Triggers full render and summary update
 
                 closeModal(clearConfirmModal);
                 showToast('All expense data cleared! ✅', 'success');
             });
 
-            categoryFilter.addEventListener('change', renderExpenses);
+            // These event listeners should trigger a full re-render for filtering/sorting
+            categoryFilter.addEventListener('change', updateExpenseTableAndSummary);
             startDateFilter.addEventListener('change', () => { 
                 validateInput(startDateFilter); 
                 validateInput(endDateFilter); 
-                renderExpenses(); 
+                updateExpenseTableAndSummary(); 
             });
             endDateFilter.addEventListener('change', () => { 
                 validateInput(endDateFilter); 
                 validateInput(startDateFilter); 
-                renderExpenses(); 
+                updateExpenseTableAndSummary(); 
             });
 
             document.querySelectorAll('.expense-table th[data-sort-by]').forEach(header => {
@@ -1201,6 +1268,7 @@
                         sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
                     } else {
                         sortConfig.key = newSortKey;
+                        // Default descending for numeric/date, ascending for text
                         if (newSortKey === 'date' || newSortKey === 'amount') {
                             sortConfig.direction = 'desc'; 
                         } else {
@@ -1208,7 +1276,7 @@
                         }
                     }
                     localStorage.setItem('sortConfig', JSON.stringify(sortConfig));
-                    renderExpenses();
+                    updateExpenseTableAndSummary(); // Re-render for sorting
                 });
             });
 
@@ -1217,10 +1285,9 @@
                 const start = startDateFilter.value ? new Date(startDateFilter.value + 'T00:00:00Z') : null;
                 const end = endDateFilter.value ? new Date(endDateFilter.value + 'T00:00:00Z') : null;
 
-                let filtered = [...expenses];
+                let filtered = [...expenses]; // Start with a copy of the main expenses array
 
                 if (filterValue !== 'all') {
-                    // Filter based on stripped value for consistency, matching dropdown's value
                     filtered = filtered.filter(exp => stripEmojis(exp.category) === stripEmojis(filterValue));
                 }
                 if (start && !isNaN(start.getTime())) { 
@@ -1241,7 +1308,6 @@
                         valA = a.amount;
                         valB = b.amount;
                     } else {
-                        // For string sorting, strip emojis to ensure alphabetical order based on text
                         valA = stripEmojis(String(a[sortConfig.key])).toLowerCase(); 
                         valB = stripEmojis(String(b[sortConfig.key])).toLowerCase();
                     }
@@ -1291,7 +1357,7 @@
                 }
 
                 const spendingByCategoryReport = expensesToReport.reduce((acc, exp) => {
-                    const categoryName = stripEmojis(exp.category); // Strip emojis for the report summary
+                    const categoryName = stripEmojis(exp.category); 
                     acc[categoryName] = (acc[categoryName] || 0) + exp.amount;
                     return acc;
                 }, {});
@@ -1335,7 +1401,7 @@
                     const paddedDescription = expense.description.length > 25 ? expense.description.substring(0, 22) + '...' : expense.description;
 
                     body += `${formattedDate.padEnd(11)}`; 
-                    body += `${stripEmojis(expense.category).padEnd(16)}`; // Strip emojis for consistent reporting layout
+                    body += `${stripEmojis(expense.category).padEnd(16)}`; 
                     body += `${paddedDescription.padEnd(29)}`; 
                     body += `${formatCurrency(expense.amount).padStart(10)}\n`; 
                 });
@@ -1344,7 +1410,7 @@
                 body += `===========================================================\n\n`;
 
                 let filtersApplied = [];
-                if (categoryFilter.value !== 'all') { filtersApplied.push(`Category: ${stripEmojis(categoryFilter.value)}`); } // Strip emoji from filter name for report
+                if (categoryFilter.value !== 'all') { filtersApplied.push(`Category: ${stripEmojis(categoryFilter.value)}`); } 
                 if (startDateFilter.value) { filtersApplied.push(`From Date: ${toLocalDateInput(startDateFilter.value)}`); }
                 if (endDateFilter.value) { filtersApplied.push(`To Date: ${toLocalDateInput(endDateFilter.value)}`); }
 
@@ -1380,21 +1446,15 @@
                 });
             });
 
-            // REMOVED: desktopRecommendationCloseBtn.addEventListener('click', ...);
-
-
             // --- Initialization ---
             const initializeApp = () => {
                 updateWelcomeMessage(); 
                 populateCategoryDropdowns();
                 document.getElementById('expense-date').valueAsDate = new Date(); 
-                renderExpenses(); 
+                renderExpenses(); // Initial render of all expenses
                 updateTotal();
                 updateExpenseSummary(); 
-                // REMOVED: checkScreenSizeForRecommendation(); 
             };
-
-            // REMOVED: window.addEventListener('resize', checkScreenSizeForRecommendation);
 
             initializeApp();
         });
