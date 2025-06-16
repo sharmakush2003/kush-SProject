@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- MODIFIED: Changed viewport width to a fixed desktop value -->
+    <meta name="viewport" content="width=1024"> 
     <title>My Smart Expense Tracker 💰</title>
     <link rel="icon" type="image/png" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3e%3cpath fill='%23f1c40f' d='M19 12h-6V6h-2v6H5v2h6v6h2v-6h6z'/%3e%3c/svg%3e">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -15,11 +16,11 @@
                 - Animated button hovers (transform, shadow).
                 - Animated table headers on sort hover.
                 - Enhanced toast entry/exit (slide and fade).
-                - Animated desktop recommendation bar with auto-hide logic for mobile.
                 - Subtle heading hover animation.
-            - Improved Responsive Design: Further fine-tuned media queries for an even better experience across mobile, tablet, and desktop.
             - Accessibility: Added aria-labels.
             - Usability: Better validation message positioning.
+            
+            NOTE: All responsive design media queries have been removed to force desktop rendering on all devices.
         */
 
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
@@ -52,12 +53,9 @@
         @keyframes flash { 0% { color: var(--accent-color); text-shadow: 0 0 20px var(--accent-color), 0 0 40px var(--accent-color); transform: scale(1.08); } 100% { color: var(--accent-color); text-shadow: none; transform: scale(1); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 80% { transform: scale(1.02); opacity: 1; } 100% { transform: scale(1); } }
-        /* New Toast Animations */
+        /* Toast Animations */
         @keyframes slideInRight { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
         @keyframes slideOutRight { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
-        /* New Recommendation Bar Animations */
-        @keyframes slideDownShow { from { opacity: 0; transform: translateY(-100%); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUpHide { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100%); } }
 
         /* Base styles */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -385,202 +383,16 @@
         .modal-actions { display: flex; justify-content: flex-end; gap: 20px; margin-top: 35px; flex-wrap: wrap; } 
         .modal-actions .btn { flex-grow: 1; min-width: 140px; } 
 
-        /* Desktop Recommendation Message */
-        #desktop-recommendation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 12px 15px; 
-            background-color: rgba(52, 152, 219, 0.98); 
-            color: var(--white-color);
-            font-size: 0.9rem; 
-            text-align: center;
-            z-index: 100; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-            display: flex; 
-            align-items: center;
-            justify-content: center;
-            gap: 8px; 
-
-            opacity: 0; 
-            transform: translateY(-100%); 
-            animation: slideUpHide 0.5s forwards; 
-        }
-
-        #desktop-recommendation.show {
-            animation: slideDownShow 0.5s forwards; 
-        }
-
-        #desktop-recommendation .close-btn {
-            background: none;
-            border: none;
-            color: var(--white-color);
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin-left: auto; 
-            padding: 0 5px; 
-            line-height: 1;
-            opacity: 0.8;
-            transition: opacity 0.2s ease;
-        }
-
-        #desktop-recommendation .close-btn:hover {
-            opacity: 1;
-        }
-
-        /* Responsive Design Breakpoints */
-
-        /* General mobile base styles (max-width: 768px) */
-        @media (max-width: 768px) {
-            body { padding: 15px; }
-            .container { padding: 25px; max-width: unset; width: 100%; border-radius: 15px; 
-                         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); /* Slightly less blur for mobile */
-                         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 8px rgba(255,255,255,0.1);
-            }
-            h1 { font-size: 2.2rem; margin-bottom: 8px; }
-            h1:hover { transform: translateY(-2px) scale(1); text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-            #welcome-message { font-size: 1rem; margin-bottom: 20px; }
-            h2 { font-size: 1.6rem; margin: 35px 0 25px 0; padding-top: 25px; }
-            h2 i { font-size: 1.5rem; gap: 8px;} 
-            .total-expenses #total-amount { font-size: 2.8rem; }
-            .total-expenses h3 { font-size: 0.9rem;}
-
-            .form-grid { grid-template-columns: 1fr; gap: 20px; }
-            .form-control.full-width { grid-column: auto; }
-            label { font-size: 0.85rem; margin-bottom: 8px;} 
-            input[type="text"], input[type="number"], input[type="date"], select {
-                padding: 14px; 
-                font-size: 16px; 
-                border-radius: 8px; 
-            }
-            .form-control .error-message { font-size: 0.75rem; height: 1rem; } 
-            select { background-position: right 10px center; padding-right: 35px;} 
-            
-            .btn { 
-                padding: 14px 20px; 
-                font-size: 16px; 
-                border-radius: 8px; 
-                margin-top: 20px !important; 
-                margin-left: 8px !important;
-                box-shadow: 0 5px 15px var(--shadow-button); /* Less pronounced shadow on mobile */
-            }
-            .btn:first-child { margin-left: 0 !important;}
-            .btn:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 8px 20px var(--shadow-light); }
-
-
-            .actions { flex-direction: column; align-items: stretch; gap: 15px; margin-top: 30px;}
-            .actions .btn { width: 100%; }
-
-            #expense-summary-section { padding: 25px; border-radius: 15px; margin-top: 30px;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.3), inset 0 0 5px rgba(255,255,255,0.05); /* Reduced shadow for mobile */
-            }
-            #expense-summary-section h3 { font-size: 1.4rem; margin-bottom: 20px; padding-bottom: 15px;}
-            #expense-summary-section h3 i { font-size: 1.2rem;}
-            #expense-summary-content p { font-size: 0.95rem; padding: 12px; gap: 10px; }
-            #expense-summary-content p i { font-size: 1.1rem; }
-
-            .expense-controls { grid-template-columns: 1fr; gap: 15px; } 
-            .expense-controls #date-filter-group { flex-direction: column; gap: 15px; padding: 15px 0 5px; margin-top: 15px; } 
-            
-            /* Mobile Table Styling (each row becomes a card-like element) */
-            .expense-table-container { 
-                max-height: none; 
-                overflow-y: visible; 
-                border: none; 
-                background: transparent; 
-                box-shadow: none;
-                -webkit-overflow-scrolling: touch; 
-            }
-            .expense-table-container::-webkit-scrollbar { display: none; } 
-
-            .expense-table { border: 1px solid var(--border-alpha); border-radius: 10px; overflow: hidden; display: block; }
-            .expense-table thead { display: none; } 
-            .expense-table tbody, .expense-table tr { display: block; width: 100%; }
-            .expense-table tr { 
-                margin-bottom: 12px; 
-                background: rgba(0,0,0,0.25); /* Slightly lighter glass background for rows on mobile */
-                border-radius: 10px; 
-                padding: 10px 15px; 
-                border: 1px solid rgba(255, 255, 255, 0.15); /* More prominent border for rows */
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* Small shadow for mobile rows */
-            }
-            .expense-table tbody tr:last-child { margin-bottom: 0;}
-            .expense-table tbody tr:hover { background-color: rgba(0,0,0,0.4); } /* Stronger hover */
-            .expense-table tr.item-exit { animation: fadeOutShrink 0.5s ease-in forwards; } 
-
-            .expense-table td {
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center;
-                padding: 8px 0; 
-                border-bottom: 1px dashed rgba(255, 255, 255, 0.15); /* More prominent row separation */
-                text-align: right; 
-                font-size: 0.95rem; 
-            }
-            .expense-table td:last-child { border-bottom: none; }
-            .expense-table tr td:first-child { padding-top: 10px; } 
-            .expense-table tr td:last-of-type:not(.col-actions) { padding-bottom: 10px;}
-
-            .expense-table td::before {
-                content: attr(data-label); 
-                font-weight: 600; 
-                text-transform: uppercase;
-                font-size: 0.75rem; 
-                color: rgba(255, 255, 255, 0.7);
-                flex-basis: 40%; 
-                text-align: left; 
-                padding-right: 10px; 
-                flex-shrink: 0; 
-            }
-            .expense-table td.col-actions { 
-                justify-content: center; 
-                border-bottom: none; 
-                padding-top: 5px; 
-                padding-bottom: 5px;
-            }
-            .expense-table td.col-actions::before { content: ""; flex-basis: 0; padding-right: 0;} 
-            .action-btn { font-size: 1.2rem; padding: 6px; } /* Slightly larger for easier mobile tap */
-
-            .modal-content { padding: 30px; border-radius: 15px; max-width: 95%; 
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 8px rgba(255,255,255,0.05); /* Reduced modal shadow for mobile */
-            }
-            .modal-content h2 { font-size: 1.8rem; margin-bottom: 20px; }
-            .modal-actions { flex-direction: column-reverse; gap: 15px; margin-top: 25px; } 
-            .modal-actions .btn { min-width: unset; width: 100%; }
-
-            #toast-container { top: 15px; right: 15px; gap: 8px; } 
-            .toast { padding: 15px 25px; min-width: 250px; font-size: 0.9rem;} 
-
-            #desktop-recommendation { font-size: 0.85rem; padding: 10px 15px; }
-            #desktop-recommendation .close-btn { font-size: 1rem; }
-        }
-
-        /* Landscape Mode for Smaller Mobiles (adjust form layout for more horizontal space) */
-        @media (max-width: 768px) and (orientation: landscape) {
-            .form-grid { grid-template-columns: 1fr 1fr; gap: 15px; } /* Go back to 2 columns if space allows */
-            .container { padding: 20px; }
-            h1 { font-size: 1.8rem;}
-            h2 { font-size: 1.4rem; margin: 25px 0 20px 0;}
-            #expense-summary-section h3 { font-size: 1.2rem; }
-            .modal-content { max-width: 70%; }
-            .modal-actions { flex-direction: row; flex-wrap: nowrap;} 
-            .modal-actions .btn { min-width: auto; flex-grow: 1;}
-            
-            .expense-controls #date-filter-group { flex-direction: row; }
-            .expense-controls #date-filter-group .form-control { flex: 1 1 calc(50% - 10px); }
-        }
+        /* REMOVED: Desktop Recommendation Message styles (no longer needed) */
+        
+        /* REMOVED: All Responsive Design Breakpoints and Mobile-Specific Styles */
+        /* @media (max-width: 768px) { ... } */
+        /* @media (max-width: 768px) and (orientation: landscape) { ... } */
     </style>
 </head>
 <body>
-    <!-- Desktop Recommendation Message -->
-    <div id="desktop-recommendation">
-        <i class="fas fa-desktop" aria-hidden="true"></i> For the best experience, we recommend using this app on a desktop browser.
-        <button class="close-btn" aria-label="Close recommendation"><i class="fas fa-times" aria-hidden="true"></i></button>
-    </div>
-
+    <!-- REMOVED: Desktop Recommendation Message HTML -->
+    
     <div class="container">
         <h1>Smart Expense Tracker 💰</h1>
         <p id="welcome-message"></p>
@@ -760,8 +572,7 @@
             const toastContainer = document.getElementById('toast-container');
             const addCategoryBtn = document.getElementById('add-category-btn');
             const welcomeMessageElement = document.getElementById('welcome-message'); 
-            const desktopRecommendation = document.getElementById('desktop-recommendation');
-            const desktopRecommendationCloseBtn = desktopRecommendation.querySelector('.close-btn');
+            // REMOVED: desktopRecommendation elements and related close button
 
             // Modals and their forms
             const editModal = document.getElementById('edit-modal');
@@ -777,7 +588,7 @@
             let currentEditId = null;
             let sortConfig = JSON.parse(localStorage.getItem('sortConfig')) || { key: 'date', direction: 'desc' }; // Default sort by date descending
 
-            let desktopRecommendationTimeout; // To store the timeout ID
+            // REMOVED: desktopRecommendationTimeout; // No longer needed
 
             // --- Helper Functions ---
 
@@ -1070,7 +881,7 @@
                     const percentage = (diff / totalLastMonthSpent) * 100;
                     monthlyComparisonHtml = `
                         <p class="good-news">
-                            <i class="fas fa-arrow-trend-down" aria-hidden="true"></i> Excellent! You spent <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% less)</strong> in ${currentMonthName} compared to ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Keep up the smart saving! ✨
+                            <i class="fas fa-arrow-trend-down" aria-hidden="true"></i> Excellent! You spent <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% less)</strong> in ${currentMonthName} compared to ${lastMonthName}'s ${formatCurrency(totalCurrentMonthSpent)}. Keep up the smart saving! ✨
                         </p>
                     `;
                 } else if (totalCurrentMonthSpent === totalLastMonthSpent && totalCurrentMonthSpent > 0) {
@@ -1214,39 +1025,9 @@
                 welcomeMessageElement.textContent = `Hello, ${userName}! Let's track your expenses. 📊`;
             };
 
-            // --- Desktop Recommendation Logic ---
-            const showDesktopRecommendation = () => {
-                if (desktopRecommendationTimeout) clearTimeout(desktopRecommendationTimeout);
-                desktopRecommendation.classList.add('show');
-                // Auto-hide after a delay if on mobile
-                if (window.innerWidth < 768) { 
-                    desktopRecommendationTimeout = setTimeout(() => {
-                        desktopRecommendation.classList.remove('show');
-                    }, 4000); // Auto-hide after 4 seconds
-                }
-            };
-
-            const hideDesktopRecommendation = () => {
-                if (desktopRecommendationTimeout) clearTimeout(desktopRecommendationTimeout);
-                desktopRecommendation.classList.remove('show');
-            };
-
-            const checkScreenSizeForRecommendation = () => {
-                // Only show if user has interacted (expenses or username) OR if explicitly triggered (not default load behavior)
-                // For a truly best-in-class UX, we shouldn't pester user. We will show if not already dismissed via LS.
-                const dismissedRecommendation = localStorage.getItem('dismissedDesktopRecommendation');
-                if (dismissedRecommendation === 'true') { // Check for 'true' as string
-                    hideDesktopRecommendation();
-                    return;
-                }
-
-                if (window.innerWidth < 768) { 
-                    showDesktopRecommendation();
-                } else {
-                    hideDesktopRecommendation(); // Always hide on desktop
-                }
-            };
-
+            // REMOVED: Desktop Recommendation Logic and its related functions (showDesktopRecommendation, hideDesktopRecommendation, checkScreenSizeForRecommendation)
+            // REMOVED: localStorage.setItem('dismissedDesktopRecommendation', 'true'); // No longer needed
+            // REMOVED: desktopRecommendationCloseBtn.addEventListener('click', ...)
 
             // --- Event Listeners ---
             document.getElementById('expense-date').valueAsDate = new Date();
@@ -1386,7 +1167,7 @@
                 // Re-save initial configurations for a fresh start without persistent filters/sort
                 sortConfig = { key: 'date', direction: 'desc' };
                 localStorage.setItem('sortConfig', JSON.stringify(sortConfig));
-                localStorage.setItem('dismissedDesktopRecommendation', 'false'); // Reset this too
+                // REMOVED: localStorage.setItem('dismissedDesktopRecommendation', 'false'); // No longer needed
                 
                 saveExpenses(); // This will also re-render/update totals/summary
                 saveCategories(); // This will populate dropdowns with default categories
@@ -1599,10 +1380,7 @@
                 });
             });
 
-            desktopRecommendationCloseBtn.addEventListener('click', () => {
-                hideDesktopRecommendation();
-                localStorage.setItem('dismissedDesktopRecommendation', 'true'); // Store user's choice
-            });
+            // REMOVED: desktopRecommendationCloseBtn.addEventListener('click', ...);
 
 
             // --- Initialization ---
@@ -1613,10 +1391,10 @@
                 renderExpenses(); 
                 updateTotal();
                 updateExpenseSummary(); 
-                checkScreenSizeForRecommendation(); 
+                // REMOVED: checkScreenSizeForRecommendation(); 
             };
 
-            window.addEventListener('resize', checkScreenSizeForRecommendation);
+            // REMOVED: window.addEventListener('resize', checkScreenSizeForRecommendation);
 
             initializeApp();
         });
