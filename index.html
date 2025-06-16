@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Smart Expense Tracker</title>
+    <link rel="icon" type="image/png" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3e%3cpath fill='%23f1c40f' d='M19 12h-6V6h-2v6H5v2h6v6h2v-6h6z'/%3e%3c/svg%3e">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary-color: #8e44ad; /* Deep Purple */
+            --secondary-color: #3498db; /* Bright Blue */
+            --accent-color: #f1c40f; /* Vibrant Yellow */
+            --danger-color: #e74c3c; /* Red */
+            --success-color: #2ecc71; /* Green */
+            --info-color: #3498db;   /* Blue */
+            --white-color: #fff;
+            --text-color: #ecf0f1; /* Light gray text */
+            --soft-dark-bg: rgba(0, 0, 0, 0.3); /* Base background for main elements */
+            --modal-bg: rgba(44, 62, 80, 0.95); /* Near-opaque dark blue for modals */
+            --border-alpha: rgba(255, 255, 255, 0.15); /* Transparent white for borders */
+            --input-border-alpha: rgba(255, 255, 255, 0.25); /* Slightly more opaque for inputs */
+            --shadow-light: rgba(0, 0, 0, 0.4); /* General shadow for glassmorphism */
+            --bg-glass-active: rgba(0,0,0,0.45); /* Hover/focus background for glass elements */
+        }
+
+        /* Keyframe Animations */
+        @keyframes gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOutShrink { from { opacity: 1; transform: scale(1); max-height: 200px; padding-top: 12px; padding-bottom: 12px; margin: auto;} to { opacity: 0; transform: scale(0.9); max-height: 0; padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0;} }
+        @keyframes flash { 0% { color: var(--accent-color); text-shadow: 0 0 15px var(--accent-color); transform: scale(1.05); } 100% { color: var(--accent-color); text-shadow: none; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 80% { transform: scale(1.02); opacity: 1; } 100% { transform: scale(1); } }
+
+        /* Base styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #2c3e50, #34495e, #23a6d5, #23d5ab);
+            background-size: 400% 400%; animation: gradient-animation 15s ease infinite;
+            color: var(--text-color); min-height: 100vh; padding: 20px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .container {
+            width: 100%; max-width: 950px; padding: 40px; 
+            background: var(--soft-dark-bg); border-radius: 20px;
+            box-shadow: 0 10px 30px 0 var(--shadow-light); /* Increased shadow for depth */
+            backdrop-filter: blur(15px); /* Increased blur effect */
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border-alpha);
+            animation: slideInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smoother animation curve */
+            margin: auto;
+            position: relative;
+        }
+
+        /* Headings */
+        h1 {
+            font-size: 2.8rem; text-align: center; margin-bottom: 10px; font-weight: 700;
+            background: linear-gradient(45deg, var(--white-color), var(--accent-color));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 3px 8px rgba(0,0,0,0.3); /* Softer, larger shadow */
+            transition: all 0.3s ease;
+        }
+
+        #welcome-message {
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 25px; /* Spacing below the welcome message */
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+        }
+        
+        h2 {
+            font-size: 2rem; /* Slightly larger */
+            text-align: center; color: var(--white-color);
+            margin: 45px 0 30px 0; /* More spacing */
+            font-weight: 700;
+            border-top: 1px solid var(--border-alpha); padding-top: 30px; /* More spacing and clearer border */
+            transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center; gap: 12px; /* Slightly more gap for icon */
+        }
+        h2 i { color: var(--accent-color); font-size: 1.7rem; /* Larger icon */ }
+
+        /* Total Expenses Section */
+        .total-expenses { text-align: center; margin-bottom: 30px; }
+        .total-expenses h3 { font-weight: 400; font-size: 1rem; color: rgba(255, 255, 255, 0.7); } /* Slightly lighter color */
+        .total-expenses #total-amount { font-size: 3.5rem; /* Larger */ font-weight: 700; color: var(--accent-color); transition: all 0.3s ease; }
+        .total-expenses #total-amount.flash-update { animation: flash 0.7s ease-out; }
+
+        /* Form Layout */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; /* More gap */ }
+        .form-control.full-width { grid-column: 1 / -1; }
+        .form-control { display: flex; flex-direction: column; position: relative; }
+        label { margin-bottom: 10px; /* More space */ font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.8px; /* Tighter letter spacing */ opacity: 0.9; } /* Slightly more transparent */
+        
+        input[type="text"], input[type="number"], input[type="date"], select {
+            padding: 16px; /* Larger padding */ border: 1px solid var(--input-border-alpha); border-radius: 10px; /* More rounded */
+            font-size: 17px; /* Slightly larger font */ background: rgba(0, 0, 0, 0.25); /* Darker background */ color: var(--white-color);
+            transition: all 0.3s ease; font-family: 'Poppins', sans-serif;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); /* Subtle inset shadow */
+            -webkit-appearance: none; /* Remove default browser styling for consistency */
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        /* Custom dropdown arrow for select */
+        select { 
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"); 
+            background-repeat: no-repeat;
+            background-position: right 15px center; /* Position the arrow */
+            padding-right: 40px; /* Make space for the arrow */
+            cursor: pointer;
+        }
+        /* Style for options within the select dropdown */
+        select option {
+            background-color: #2c3e50; /* Darker background for options */
+            color: var(--white-color);
+            padding: 10px; /* Add padding to options */
+        }
+        /* Hover/focus for options (browser dependent, harder to style consistently) */
+        select option:hover,
+        select option:checked {
+            background-color: var(--secondary-color); /* Highlight selected/hovered option */
+        }
+
+        input::placeholder { color: rgba(255, 255, 255, 0.6); } /* Slightly lighter placeholder */
+        input:focus, select:focus {
+            outline: none; background: var(--bg-glass-active); /* Clearer active state */
+            border-color: var(--primary-color);
+            box-shadow: 0 0 12px rgba(142, 68, 173, 0.6), inset 0 2px 5px rgba(0,0,0,0.2); /* Enhanced focus shadow */
+        }
+        input.invalid, select.invalid { border-color: var(--danger-color); box-shadow: 0 0 12px rgba(231, 76, 60, 0.5), inset 0 2px 5px rgba(0,0,0,0.2); } /* Red border and shadow for invalid */
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.78rem; /* Slightly larger */
+            margin-top: 5px;
+            position: absolute;
+            bottom: -22px; /* Adjusted position for padding changes */
+            left: 0;
+            white-space: nowrap; 
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        input.invalid + .error-message, select.invalid + .error-message { opacity: 1; }
+
+        /* Buttons */
+        .btn { 
+            padding: 16px 25px; /* Larger padding */ border: none; border-radius: 10px; /* More rounded */ 
+            cursor: pointer; font-size: 17px; /* Larger font */ font-weight: 600; text-align: center; 
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smoother animation */ 
+            letter-spacing: 0.8px; /* Tighter letter spacing */ white-space: nowrap;
+            display: inline-flex; align-items: center; justify-content: center; /* For consistent icon alignment */
+        }
+        .btn:active { transform: scale(0.96); box-shadow: inset 0 2px 8px rgba(0,0,0,0.3); } /* Clearer active state */
+        .btn-primary { background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); color: var(--white-color); box-shadow: 0 6px 20px rgba(0,0,0,0.25); } /* Stronger shadow */
+        .btn-primary:hover { box-shadow: 0 8px 25px rgba(52, 152, 219, 0.45); transform: translateY(-3px); } /* Higher lift */
+        .btn-danger { background-color: var(--danger-color); color: var(--white-color); box-shadow: 0 4px 15px rgba(0,0,0,0.15);}
+        .btn-danger:hover { background-color: #c0392b; box-shadow: 0 6px 20px rgba(231, 76, 60, 0.35); transform: translateY(-2px); }
+        .btn-success { background-color: var(--success-color); color: var(--white-color); box-shadow: 0 4px 15px rgba(0,0,0,0.15);}
+        .btn-success:hover { background-color: #27ae60; box-shadow: 0 6px 20px rgba(46, 204, 113, 0.35); transform: translateY(-2px); }
+        .btn-info { background-color: var(--info-color); color: var(--white-color); box-shadow: 0 4px 15px rgba(0,0,0,0.15);}
+        .btn-info:hover { background-color: #2980b9; box-shadow: 0 6px 20px rgba(52, 152, 219, 0.35); transform: translateY(-2px); }
+        
+        .btn i { margin-right: 10px; font-size: 1rem; } /* Larger icon margin and size */
+
+        /* Action Buttons within table */
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.3rem; transition: all 0.3s ease; padding: 6px; color: var(--text-color); opacity: 0.8; } /* Larger, slightly more opaque */
+        .action-btn:hover { opacity: 1; transform: scale(1.3); } /* More pronounced scale */
+        .action-btn.edit-btn:hover { color: var(--secondary-color); }
+        .action-btn.duplicate-btn:hover { color: var(--success-color); }
+        .action-btn.delete-btn:hover { color: var(--danger-color); }
+        
+        .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 40px; } /* More space */
+        
+        /* Summary Section Styling */
+        #expense-summary-section {
+            background: rgba(0,0,0,0.25); /* Slightly darker background */
+            padding: 30px; /* More padding */
+            border-radius: 18px; /* More rounded */
+            border: 1px solid var(--border-alpha);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15); /* Stronger shadow */
+            margin-bottom: 30px;
+            margin-top: 40px; /* Adjusted margin */
+            animation: fadeIn 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smoother, slower fade in */
+        }
+        #expense-summary-section h3 {
+            font-size: 1.6rem; /* Larger */
+            color: var(--accent-color);
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 20px; /* More padding */
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1); /* Lighter, subtle dashed border */
+            gap: 15px; /* More gap for icon */
+        }
+        #expense-summary-section h3 i { font-size: 1.4rem; } /* Larger icon */
+        #expense-summary-content p {
+            padding: 15px; /* More padding */
+            background: rgba(0,0,0,0.12); /* Slightly lighter background */
+            border-left: 5px solid var(--secondary-color); /* Thicker border */
+            margin-bottom: 12px; /* More space */
+            border-radius: 10px; /* More rounded */
+            line-height: 1.7; /* Increased line height for readability */
+            font-size: 1.05rem; /* Slightly larger font */
+            gap: 15px; /* More gap */
+        }
+        #expense-summary-content p:last-child { margin-bottom: 0; }
+        #expense-summary-content strong { color: var(--white-color); }
+        #expense-summary-content .good-news { border-left-color: var(--success-color); }
+        #expense-summary-content .bad-news { border-left-color: var(--danger-color); }
+        #expense-summary-content .good-news i, #expense-summary-content .bad-news i {
+            font-size: 1.3rem; /* Larger icon in paragraph */
+        }
+        #expense-summary-content p i { 
+            font-size: 1.2rem; /* Larger icon in general paragraphs */
+        }
+
+
+        /* Expense Controls (Filters/Search) */
+        .expense-controls { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 20px; 
+            align-items: flex-end; 
+            margin-bottom: 25px; 
+        } 
+        .expense-controls .form-control { 
+            display: flex; flex-direction: column; position: relative; 
+            min-width: unset; 
+            flex: unset; 
+        }
+        .expense-controls #date-filter-group { 
+            grid-column: 1 / -1; 
+            display: flex; flex-wrap: wrap; gap: 20px; 
+            padding: 20px 0 10px; 
+            border-top: 1px dashed rgba(255, 255, 255, 0.08); 
+            margin-top: 20px; 
+        }
+        .expense-controls #date-filter-group .form-control { flex: 1 1 calc(50% - 10px); }
+
+
+        /* Expense Table Styling */
+        .expense-table-container { 
+            max-height: 400px; /* Slightly taller */ overflow-y: auto; 
+            background: rgba(0,0,0,0.18); /* Slightly darker */ border-radius: 10px; /* More rounded */ 
+            border: 1px solid var(--border-alpha);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1); /* Inner shadow */
+        }
+        .expense-table-container::-webkit-scrollbar { width: 10px; } /* Wider scrollbar */
+        .expense-table-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.25); border-radius: 10px; }
+        .expense-table-container::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; border: 2px solid rgba(0,0,0,0.1); } /* More pronounced scroll thumb */
+        .expense-table { width: 100%; border-collapse: collapse; }
+        .expense-table th, .expense-table td { padding: 14px 18px; /* More padding */ text-align: left; vertical-align: middle; }
+        .expense-table thead { position: sticky; top: 0; z-index: 10; }
+        .expense-table thead tr { background: rgba(0, 0, 0, 0.5); border-bottom: 1px solid var(--border-alpha); } /* Stronger background, clear bottom border */
+        .expense-table th { 
+            font-weight: 700; text-transform: uppercase; font-size: 0.9rem; /* Larger, bolder */ letter-spacing: 0.8px; 
+            color: rgba(255, 255, 255, 0.85); /* Brighter */ cursor: pointer; transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+        .expense-table th:hover { color: var(--accent-color); background: rgba(0,0,0,0.6); transform: translateY(-1px); } /* Hover background, slight lift */
+        .expense-table th.sorted { color: var(--secondary-color); }
+        .expense-table th .sort-icon { margin-left: 8px; font-size: 0.8em; } /* Larger icon */
+
+        .expense-table tbody tr { border-bottom: 1px dashed rgba(255, 255, 255, 0.08); transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease; } /* Dashed border for subtle separation */
+        .expense-table tbody tr:last-child { border-bottom: none; }
+        .expense-table tbody tr:hover { background-color: rgba(0,0,0,0.3); } /* Stronger hover */
+        .expense-table tr.item-exit { animation: fadeOutShrink 0.5s ease-in forwards; }
+        .expense-table .col-amount { font-weight: 700; text-align: right; color: var(--white-color); }
+        .expense-table .col-actions { width: 120px; text-align: center; }
+
+        /* Toast Notifications */
+        #toast-container { position: fixed; top: 25px; right: 25px; z-index: 2000; display: flex; flex-direction: column; gap: 12px; pointer-events: none;} /* Slightly more spacing, slightly offset */
+        .toast {
+            background-color: rgba(44, 62, 80, 0.95); /* Matches modal background */ color: var(--white-color); padding: 18px 30px; border-radius: 10px; /* More rounded */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); /* Stronger shadow/blur */
+            opacity: 0; transform: translateY(-25px); transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smoother transition */
+            min-width: 280px; text-align: center;
+            border: 1px solid var(--border-alpha);
+            font-weight: 500;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { border-left: 6px solid var(--success-color); } /* Thicker border */
+        .toast.error { border-left: 6px solid var(--danger-color); }
+        .toast.info { border-left: 6px solid var(--info-color); }
+
+        /* Modal Styles */
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); /* Darker overlay */ backdrop-filter: blur(8px); /* Stronger blur */ z-index: 1000; 
+            display: flex; align-items: center; justify-content: center; 
+            opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0s linear 0.4s; 
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; transition: opacity 0.4s ease, visibility 0s linear 0s; }
+        .modal-content { 
+            background: var(--modal-bg); border-radius: 20px; /* Matches container radius */
+            box-shadow: 0 12px 40px 0 var(--shadow-light); border: 1px solid var(--border-alpha); 
+            padding: 45px; /* More padding */ width: 90%; max-width: 550px; /* Slightly wider */ transform: scale(0.9); opacity: 0; 
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease; /* Smoother transitions for modal content */
+            animation: popIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Added pop-in effect */
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
+        .modal-content h2 { margin: 0 0 30px 0; padding: 0; border: none; font-size: 2.2rem; } /* Larger, bolder h2 in modal */
+        .modal-actions { display: flex; justify-content: flex-end; gap: 20px; margin-top: 35px; flex-wrap: wrap; } /* More space */
+        .modal-actions .btn { flex-grow: 1; min-width: 140px; } /* Slightly larger min-width for modal buttons */
+
+        /* Responsive Design Breakpoints */
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            .container { padding: 30px; max-width: unset; width: 100%; border-radius: 15px; }
+            h1 { font-size: 2.2rem; }
+            #welcome-message { font-size: 1rem; margin-bottom: 20px; }
+            h2 { font-size: 1.6rem; margin: 35px 0 25px 0; padding-top: 25px; }
+            .total-expenses #total-amount { font-size: 2.8rem; }
+            .form-grid { grid-template-columns: 1fr; gap: 20px; }
+            .form-control.full-width { grid-column: auto; }
+            
+            .expense-controls { grid-template-columns: 1fr; gap: 15px; } 
+            .expense-controls .form-control { flex: none; width: 100%; }
+            .expense-controls #date-filter-group { flex-direction: column; gap: 15px; padding: 15px 0 5px; margin-top: 15px; } 
+            
+            .expense-table-container { max-height: none; overflow-y: visible; border: none; background: transparent; }
+            .expense-table { border: 1px solid var(--border-alpha); border-radius: 10px; overflow: hidden; display: block; }
+            .expense-table thead { display: none; }
+            .expense-table tbody, .expense-table tr { display: block; width: 100%; }
+            .expense-table tr { 
+                margin-bottom: 12px; background: rgba(0,0,0,0.18); border-radius: 10px; padding: 15px; 
+                border: 1px solid rgba(255, 255, 255, 0.12); 
+            }
+            .expense-table tbody tr:hover { background-color: rgba(0,0,0,0.35); }
+
+            .expense-table td {
+                display: flex; justify-content: space-between; align-items: center;
+                padding: 10px 0; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+                text-align: right;
+            }
+            .expense-table td:last-child { border-bottom: none; }
+            .expense-table td:first-child { padding-top: 10px; }
+            .expense-table td:last-of-type { padding-bottom: 10px; }
+            
+            .expense-table td::before {
+                font-size: 0.8rem; 
+                flex-basis: 45%; 
+            }
+            .expense-table td.col-actions { justify-content: center; border-bottom: none; }
+
+            .actions { flex-direction: column; align-items: stretch; gap: 15px;}
+            .actions .btn { width: 100%; }
+            .modal-content { padding: 30px; border-radius: 15px; max-width: 95%; }
+            .modal-content h2 { font-size: 1.8rem; margin-bottom: 20px; }
+            .modal-actions { flex-direction: column-reverse; gap: 15px; }
+            .modal-actions .btn { min-width: unset; width: 100%; }
+
+            #expense-summary-section { padding: 25px; border-radius: 15px;}
+            #expense-summary-section h3 { font-size: 1.3rem; }
+            #expense-summary-content p { font-size: 0.95rem; padding: 12px; gap: 10px; }
+            #expense-summary-content p i { font-size: 1.1rem; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 25px; border-radius: 10px;}
+            h1 { font-size: 1.6rem; }
+            #welcome-message { font-size: 0.9rem; margin-bottom: 15px; }
+            .total-expenses #total-amount { font-size: 2.2rem; }
+            label { font-size: 0.8rem; margin-bottom: 5px; }
+            input, select, .btn { padding: 12px; font-size: 14px; border-radius: 8px;}
+            .btn i { margin-right: 5px; font-size: 0.9rem; }
+            #expense-summary-section { padding: 18px 15px; font-size: 0.85rem; border-radius: 10px; }
+            #expense-summary-section h3 { font-size: 1rem; margin-bottom: 15px; padding-bottom: 10px; gap: 8px;}
+            #expense-summary-section h3 i { font-size: 1.1rem;}
+            #expense-summary-content p { font-size: 0.8rem; padding: 10px; gap: 8px;}
+            #expense-summary-content p i { font-size: 0.95rem; }
+            .action-btn { font-size: 1.1rem; padding: 4px; }
+            .expense-table td::before { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Expense Tracker</h1>
+        <!-- Welcome Message Element -->
+        <p id="welcome-message"></p>
+
+        <div class="total-expenses">
+            <h3>Total Lifetime Expenses</h3>
+            <div id="total-amount">₹0.00</div>
+        </div>
+
+        <!-- Expense Management Section -->
+        <div id="expenses-section" class="tab-content-section active">
+            <form id="expense-form">
+                <div class="form-grid">
+                    <div class="form-control">
+                        <label for="expense-date">Date</label>
+                        <input type="date" id="expense-date" required>
+                        <span class="error-message" data-input="expense-date"></span>
+                    </div>
+                    <div class="form-control">
+                        <label for="expense-category">Category</label>
+                        <select id="expense-category" required></select>
+                        <span class="error-message" data-input="expense-category"></span>
+                    </div>
+                    <div class="form-control full-width">
+                        <label for="expense-description">Description</label>
+                        <input type="text" id="expense-description" placeholder="e.g., Lunch with team" required>
+                        <span class="error-message" data-input="expense-description"></span>
+                    </div>
+                    <div class="form-control full-width">
+                        <label for="expense-amount">Amount (₹)</label>
+                        <input type="number" id="expense-amount" placeholder="e.g., 1250.50" step="0.01" min="0.01" required>
+                        <span class="error-message" data-input="expense-amount"></span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 25px;"><i class="fas fa-plus"></i> Add Expense</button>
+                <button type="button" id="add-category-btn" class="btn btn-info" style="margin-top: 25px; margin-left: 10px;"><i class="fas fa-tag"></i> New Category</button>
+            </form>
+            
+            <div id="expense-summary-section">
+                <h3><i class="fas fa-chart-pie"></i> Your Monthly Summary</h3>
+                <div id="expense-summary-content">
+                    <p style="text-align: center; color: rgba(255,255,255,0.7); border: none; padding-top: 5px; padding-bottom: 5px;">
+                        <i class="fas fa-hand-holding-usd" style="margin-right: 8px;"></i> Add some expenses to see a summary here!
+                    </p>
+                </div>
+            </div>
+
+            <h2><i class="fas fa-list-alt"></i> Your Expense Log</h2>
+            <div class="expense-controls">
+                <div class="form-control">
+                    <label for="category-filter">Filter by Category</label>
+                    <select id="category-filter"></select>
+                </div>
+                <!-- Removed: Search Description Input Field as requested -->
+                <div id="date-filter-group">
+                    <div class="form-control">
+                        <label for="start-date-filter">From Date</label>
+                        <input type="date" id="start-date-filter">
+                        <span class="error-message" data-input="start-date-filter"></span>
+                    </div>
+                    <div class="form-control">
+                        <label for="end-date-filter">To Date</label>
+                        <input type="date" id="end-date-filter">
+                        <span class="error-message" data-input="end-date-filter"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="expense-table-container">
+                <table class="expense-table">
+                    <thead>
+                        <tr>
+                            <th data-sort-by="date">Date <span class="sort-icon"></span></th>
+                            <th data-sort-by="category">Category <span class="sort-icon"></span></th>
+                            <th data-sort-by="description">Description <span class="sort-icon"></span></th>
+                            <th data-sort-by="amount" class="col-amount">Amount <span class="sort-icon"></span></th>
+                            <th class="col-actions">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-table-body"></tbody>
+                </table>
+            </div>
+
+            <div class="actions">
+                <button id="send-email-btn" class="btn btn-primary"><i class="fas fa-envelope"></i> Send Report to Email</button>
+                <button id="clear-data-btn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Clear All Data</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal-content">
+            <h2>Edit Expense</h2>
+            <form id="edit-form">
+                <div class="form-grid">
+                    <div class="form-control">
+                        <label for="edit-date">Date</label>
+                        <input type="date" id="edit-date" required>
+                        <span class="error-message" data-input="edit-date"></span>
+                    </div>
+                    <div class="form-control">
+                        <label for="edit-category">Category</label>
+                        <select id="edit-category" required></select>
+                        <span class="error-message" data-input="edit-category"></span>
+                    </div>
+                    <div class="form-control full-width">
+                        <label for="edit-description">Description</label>
+                        <input type="text" id="edit-description" required>
+                        <span class="error-message" data-input="edit-description"></span>
+                    </div>
+                    <div class="form-control full-width">
+                        <label for="edit-amount">Amount (₹)</label>
+                        <input type="number" id="edit-amount" step="0.01" min="0.01" required>
+                        <span class="error-message" data-input="edit-amount"></span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-danger cancel-modal-btn"><i class="fas fa-times-circle"></i> Cancel</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div class="modal-overlay" id="add-category-modal">
+        <div class="modal-content">
+            <h2>Add New Category</h2>
+            <form id="add-category-form">
+                <div class="form-control full-width">
+                    <label for="new-category-name">Category Name</label>
+                    <input type="text" id="new-category-name" placeholder="e.g., Groceries" required>
+                    <span class="error-message" data-input="new-category-name"></span>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-danger cancel-modal-btn"><i class="fas fa-times-circle"></i> Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Clear All Data Confirmation Modal -->
+    <div class="modal-overlay" id="clear-confirm-modal">
+        <div class="modal-content">
+            <h2>Confirm Clear Data</h2>
+            <p style="text-align: center; margin-bottom: 25px; color: rgba(255,255,255,0.9);">Are you absolutely sure you want to delete <strong style="color: var(--danger-color);">ALL</strong> expense data? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-success cancel-modal-btn"><i class="fas fa-times-circle"></i> Cancel</button>
+                <button type="button" id="confirm-clear-data-btn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Yes, Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Constants ---
+            const DEFAULT_CATEGORIES = ["Food", "Transport", "Bills", "Shopping", "Entertainment", "Other"];
+
+            // --- DOM Elements ---
+            const expenseForm = document.getElementById('expense-form');
+            const expenseTableBody = document.getElementById('expense-table-body');
+            const totalAmountDisplay = document.getElementById('total-amount');
+            const expenseSummaryContent = document.getElementById('expense-summary-content');
+            const sendEmailBtn = document.getElementById('send-email-btn');
+            const clearDataBtn = document.getElementById('clear-data-btn');
+            const categoryFilter = document.getElementById('category-filter');
+            // Removed searchInput element reference as it's no longer in HTML
+            const startDateFilter = document.getElementById('start-date-filter');
+            const endDateFilter = document.getElementById('end-date-filter');
+            const toastContainer = document.getElementById('toast-container');
+            const addCategoryBtn = document.getElementById('add-category-btn');
+            const welcomeMessageElement = document.getElementById('welcome-message'); 
+
+            // Modals and their forms
+            const editModal = document.getElementById('edit-modal');
+            const editForm = document.getElementById('edit-form');
+            const addCategoryModal = document.getElementById('add-category-modal');
+            const addCategoryForm = document.getElementById('add-category-form');
+            const clearConfirmModal = document.getElementById('clear-confirm-modal');
+            const confirmClearDataBtn = document.getElementById('confirm-clear-data-btn');
+
+            // --- State Variables ---
+            let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+            let categories = JSON.parse(localStorage.getItem('categories')) || DEFAULT_CATEGORIES;
+            let currentEditId = null;
+            let sortConfig = JSON.parse(localStorage.getItem('sortConfig')) || { key: 'date', direction: 'desc' }; // Default sort by date descending
+
+            // --- Helper Functions ---
+
+            // Ensures dates are parsed and formatted consistently for UI display and input values (YYYY-MM-DD).
+            // Crucial for cross-browser date input compatibility and date comparisons.
+            const toLocalDateInput = (dateString) => {
+                if (!dateString) return '';
+                // Append 'T00:00:00Z' to force parsing as UTC, then get ISO string
+                // This prevents issues with different timezone offsets interpreting 'YYYY-MM-DD' as local
+                const date = new Date(dateString + 'T00:00:00Z'); 
+                return date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+            };
+
+            const formatCurrency = (amount) => {
+                return `₹${parseFloat(amount).toFixed(2)}`;
+            };
+
+            const flashUpdate = (element) => {
+                element.classList.add('flash-update');
+                setTimeout(() => element.classList.remove('flash-update'), 700);
+            };
+
+            const showToast = (message, type = 'info', duration = 3000) => {
+                const toast = document.createElement('div');
+                toast.classList.add('toast', type);
+                toast.textContent = message;
+                toastContainer.appendChild(toast);
+
+                // Animate in
+                setTimeout(() => toast.classList.add('show'), 10); 
+
+                // Animate out and remove
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                }, duration);
+            };
+
+            const showModal = (modalElement) => {
+                modalElement.classList.add('active');
+                // Added a brief delay to ensure modal is visible before focusing for smoother transition
+                setTimeout(() => {
+                    // Try to focus the first interactive element or the modal itself
+                    const firstInput = modalElement.querySelector('input, select, textarea, button:not(.cancel-modal-btn)');
+                    if (firstInput) {
+                        firstInput.focus();
+                    } else {
+                        modalElement.querySelector('.modal-content').focus();
+                    }
+                }, 100); 
+            };
+
+            const closeModal = (modalElement) => {
+                modalElement.classList.remove('active');
+                const formInModal = modalElement.querySelector('form');
+                if (formInModal) {
+                    clearValidationErrors(formInModal); // Clear errors when modal closes
+                    formInModal.reset(); // Optionally reset the form fields too
+                }
+            };
+
+            // --- Local Storage Management ---
+            const saveExpenses = () => {
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                renderExpenses(); // Re-render table after any expense change
+                updateTotal();
+                updateExpenseSummary(); // Update new summary section
+            };
+
+            const saveCategories = () => {
+                localStorage.setItem('categories', JSON.stringify(categories));
+                populateCategoryDropdowns();
+            };
+
+            // --- Input Validation ---
+            const validateInput = (inputElement) => {
+                const errorMessageElement = inputElement.nextElementSibling; // Assumes error-message is direct sibling
+                let isValid = true;
+                let errorMessage = '';
+
+                // General required check
+                if (inputElement.required && inputElement.value.trim() === '') {
+                    isValid = false;
+                    errorMessage = 'This field is required.';
+                } 
+                // Number specific validation
+                else if (inputElement.type === 'number') {
+                    const value = parseFloat(inputElement.value);
+                    if (isNaN(value)) {
+                        isValid = false;
+                        errorMessage = 'Must be a valid number.';
+                    } else if (value < 0) {
+                        isValid = false;
+                        errorMessage = 'Value cannot be negative.';
+                    } else if (inputElement.min && value < parseFloat(inputElement.min)) {
+                         isValid = false;
+                        errorMessage = `Must be at least ${parseFloat(inputElement.min)}.`;
+                    }
+                } 
+                // Category name specific validation
+                else if (inputElement.id === 'new-category-name') {
+                    if (categories.map(cat => cat.toLowerCase()).includes(inputElement.value.trim().toLowerCase())) {
+                        isValid = false;
+                        errorMessage = 'Category already exists!';
+                    }
+                }
+                // Date range specific validation (only for filter inputs)
+                else if (inputElement.id === 'start-date-filter' || inputElement.id === 'end-date-filter') {
+                    const startVal = startDateFilter.value;
+                    const endVal = endDateFilter.value;
+
+                    // Clear previous date-range related error messages from both inputs
+                    const clearDateErrors = () => {
+                        startDateFilter.classList.remove('invalid');
+                        if (startDateFilter.nextElementSibling) startDateFilter.nextElementSibling.textContent = '';
+                        endDateFilter.classList.remove('invalid');
+                        if (endDateFilter.nextElementSibling) endDateFilter.nextElementSibling.textContent = '';
+                    };
+                    clearDateErrors(); // Always clear before re-evaluating
+
+                    if (startVal && endVal) {
+                        const start = new Date(startVal + 'T00:00:00Z');
+                        const end = new Date(endVal + 'T00:00:00Z');
+                        if (start > end) {
+                            isValid = false;
+                            errorMessage = 'End date cannot be before start date.';
+                            startDateFilter.classList.add('invalid');
+                            if (startDateFilter.nextElementSibling) startDateFilter.nextElementSibling.textContent = errorMessage;
+                            endDateFilter.classList.add('invalid');
+                            if (endDateFilter.nextElementSibling) endDateFilter.nextElementSibling.textContent = errorMessage;
+                        }
+                    }
+                    // For date filters, we validate both at once, so just return
+                    if (inputElement.id === 'start-date-filter' || inputElement.id === 'end-date-filter') return isValid;
+                }
+
+                // Apply or clear specific input's error state
+                if (!isValid) {
+                    inputElement.classList.add('invalid');
+                    if (errorMessageElement) errorMessageElement.textContent = errorMessage;
+                } else {
+                    inputElement.classList.remove('invalid');
+                    if (errorMessageElement) errorMessageElement.textContent = '';
+                }
+                return isValid;
+            };
+
+            const validateForm = (formElement) => {
+                let allValid = true;
+                const inputs = formElement.querySelectorAll('input[required], select[required], input[type="number"], #new-category-name'); 
+                inputs.forEach(input => {
+                    // Call validateInput for each input. Ensure `allValid` updates even if multiple inputs are invalid.
+                    // The validateInput for dates already handles mutual dependency, so no special chaining needed.
+                    if (!validateInput(input)) {
+                        allValid = false;
+                    }
+                });
+                return allValid;
+            };
+
+            const clearValidationErrors = (formElement) => {
+                formElement.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
+                formElement.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            };
+
+            // --- UI Rendering & Updates ---
+            const populateCategoryDropdowns = () => {
+                const dropdowns = [
+                    document.getElementById('expense-category'),
+                    document.getElementById('edit-category'),
+                    document.getElementById('category-filter')
+                ];
+                
+                dropdowns.forEach((dropdown, index) => {
+                    const currentSelected = dropdown.value; // Store currently selected value
+                    dropdown.innerHTML = ''; // Clear existing options
+
+                    if (index === 2) { // Special case for the filter dropdown
+                        const allOption = document.createElement('option');
+                        allOption.value = 'all';
+                        allOption.textContent = 'All Categories';
+                        dropdown.appendChild(allOption);
+                    }
+
+                    // Sort categories alphabetically
+                    categories.slice().sort((a, b) => a.localeCompare(b)).forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat;
+                        option.textContent = cat;
+                        dropdown.appendChild(option);
+                    });
+
+                    // Re-select the previously selected value, or 'all' for filter, or the first option
+                    if (Array.from(dropdown.options).some(opt => opt.value === currentSelected)) {
+                        dropdown.value = currentSelected;
+                    } else if (index === 2) { // If current filter category is removed, default to 'all'
+                        dropdown.value = 'all';
+                    } else if (dropdown.options.length > 0) { // For other dropdowns, if selected not found, pick first
+                        dropdown.value = dropdown.options[0].value;
+                    }
+                });
+            };
+
+            const updateTotal = () => {
+                const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+                totalAmountDisplay.textContent = formatCurrency(total);
+                flashUpdate(totalAmountDisplay);
+            };
+
+            const updateExpenseSummary = () => {
+                const summaryContentDiv = document.getElementById('expense-summary-content');
+                summaryContentDiv.innerHTML = ''; // Clear previous content
+
+                if (expenses.length === 0) {
+                    summaryContentDiv.innerHTML = `
+                        <p style="text-align: center; color: rgba(255,255,255,0.7); border: none; padding-top: 5px; padding-bottom: 5px; background: none;">
+                            <i class="fas fa-hand-holding-usd" style="margin-right: 8px;"></i> Start by adding your first expense to see your financial summary here!
+                        </p>
+                    `;
+                    return;
+                }
+
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth(); // 0-indexed
+
+                const getExpensesForMonth = (year, month) => {
+                    return expenses.filter(exp => {
+                        // Parse expense date consistently as UTC to match the logic's date arithmetic
+                        const expDate = new Date(exp.date + 'T00:00:00Z'); 
+                        return expDate.getUTCFullYear() === year && expDate.getUTCMonth() === month;
+                    });
+                };
+
+                const calculateSpendingByCategory = (expenseList) => {
+                    return expenseList.reduce((acc, exp) => {
+                        acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
+                        return acc;
+                    }, {});
+                };
+
+                const currentMonthExpenses = getExpensesForMonth(currentYear, currentMonth);
+                const totalCurrentMonthSpent = currentMonthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+                const currentMonthSpendingByCategory = calculateSpendingByCategory(currentMonthExpenses);
+
+                // --- Calculate Last Month's Data ---
+                let lastMonth = currentMonth - 1;
+                let lastYear = currentYear;
+                if (lastMonth < 0) {
+                    lastMonth = 11; // December
+                    lastYear--;
+                }
+                const lastMonthExpenses = getExpensesForMonth(lastYear, lastMonth);
+                const totalLastMonthSpent = lastMonthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+                const lastMonthSpendingByCategory = calculateSpendingByCategory(lastMonthExpenses);
+
+                // --- Insight 1: Monthly Comparison ---
+                let monthlyComparisonHtml = '';
+                const currentMonthName = now.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+                const lastMonthName = new Date(lastYear, lastMonth).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+
+                if (totalCurrentMonthSpent > 0 && totalLastMonthSpent === 0) {
+                     monthlyComparisonHtml = `
+                        <p><i class="fas fa-piggy-bank"></i> In ${currentMonthName}, you've spent <strong>${formatCurrency(totalCurrentMonthSpent)}</strong>. Great start to your tracking journey!</p>
+                    `;
+                } else if (totalCurrentMonthSpent > totalLastMonthSpent) {
+                    const diff = totalCurrentMonthSpent - totalLastMonthSpent;
+                    const percentage = (diff / (totalLastMonthSpent || 1)) * 100; // Prevent division by zero
+                    monthlyComparisonHtml = `
+                        <p class="bad-news">
+                            <i class="fas fa-chart-line-up"></i> Your spending in ${currentMonthName} is <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% higher)</strong> than ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Let's review where that extra cash went!
+                        </p>
+                    `;
+                } else if (totalCurrentMonthSpent < totalLastMonthSpent && totalCurrentMonthSpent >= 0) { 
+                    const diff = totalLastMonthSpent - totalCurrentMonthSpent;
+                    const percentage = (diff / totalLastMonthSpent) * 100;
+                    monthlyComparisonHtml = `
+                        <p class="good-news">
+                            <i class="fas fa-chart-line-down"></i> Excellent! You spent <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% less)</strong> in ${currentMonthName} compared to ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Keep up the smart saving!
+                        </p>
+                    `;
+                } else if (totalCurrentMonthSpent === totalLastMonthSpent && totalCurrentMonthSpent > 0) {
+                    monthlyComparisonHtml = `
+                        <p><i class="fas fa-balance-scale-left"></i> Your spending in ${currentMonthName} is consistent with ${lastMonthName}, totaling around <strong>${formatCurrency(totalCurrentMonthSpent)}</strong>. Steady financial management!</p>
+                    `;
+                } else { // No expenses in current or last month, but there might be other historical expenses
+                     monthlyComparisonHtml = `
+                        <p><i class="fas fa-calendar-alt"></i> No spending recorded for ${currentMonthName} or ${lastMonthName}. Let's get tracking your next expenses!</p>
+                     `;
+                }
+                summaryContentDiv.innerHTML += monthlyComparisonHtml;
+
+                // --- Insight 2: Top Categories this month ---
+                if (currentMonthExpenses.length > 0) {
+                    const sortedCategories = Object.entries(currentMonthSpendingByCategory)
+                        .sort(([, a], [, b]) => b - a)
+                        .slice(0, 3); 
+
+                    if (sortedCategories.length > 0) {
+                        const topCategoriesText = sortedCategories.map(([category, amount]) => {
+                            const percentOfTotal = (amount / totalCurrentMonthSpent) * 100;
+                            return `<strong>${category}</strong> (${formatCurrency(amount)}, ${percentOfTotal.toFixed(1)}% of total)`;
+                        }).join(', ');
+                        summaryContentDiv.innerHTML += `
+                            <p><i class="fas fa-boxes"></i> Your top ${sortedCategories.length} spending areas this month: ${topCategoriesText}.
+                            Knowing these can help you identify where to focus for potential savings!</p>
+                        `;
+                    }
+                    
+                    // --- Insight 3: Category Spikes/New Significant Spending ---
+                    const categoryChanges = [];
+                    const changeThreshold = 50; // % increase to consider a spike
+                    const minAmountThreshold = 500; // minimum absolute amount in current month for a spike alert to be relevant
+
+                    for (const category in currentMonthSpendingByCategory) {
+                        const currentMonthAmount = currentMonthSpendingByCategory[category];
+                        const lastMonthAmount = lastMonthSpendingByCategory[category] || 0;
+
+                        if (currentMonthAmount >= minAmountThreshold) { 
+                            if (lastMonthAmount > 0) { 
+                                const percentageChange = ((currentMonthAmount - lastMonthAmount) / lastMonthAmount) * 100;
+                                if (percentageChange > changeThreshold) {
+                                    categoryChanges.push(`<strong>${category}</strong> (up ${percentageChange.toFixed(0)}%)`);
+                                }
+                            } else { 
+                                categoryChanges.push(`<strong>${category}</strong> (new significant spending)`);
+                            }
+                        }
+                    }
+
+                    if (categoryChanges.length > 0) {
+                        summaryContentDiv.innerHTML += `
+                            <p class="bad-news">
+                                <i class="fas fa-arrow-trend-up"></i> You might want to check your spending in: ${categoryChanges.join(', ')}. 
+                                These areas saw significant changes recently.
+                            </p>
+                        `;
+                    }
+
+                    // --- Insight 4: Highest Single Expense ---
+                    const largestExpense = currentMonthExpenses.reduce((max, exp) => (exp.amount > (max ? max.amount : 0)) ? exp : max, null);
+                    if (largestExpense) {
+                        summaryContentDiv.innerHTML += `
+                            <p><i class="fas fa-search-dollar"></i> Your single largest expense this month was <strong>${formatCurrency(largestExpense.amount)}</strong> for "${largestExpense.description}" in "${largestExpense.category}". Big spending calls for careful consideration!</p>
+                        `;
+                    }
+                } else {
+                     summaryContentDiv.innerHTML += `<p><i class="fas fa-smile-beam"></i> No spending recorded for ${currentMonthName} yet. A fresh start for tracking your finances!</p>`;
+                }
+
+
+                // --- Insight 5: General Tips/Encouragement ---
+                if (totalCurrentMonthSpent > 25000 && currentMonthExpenses.length > 10) { 
+                     summaryContentDiv.innerHTML += `
+                        <p><i class="fas fa-chart-area"></i> With total spending reaching <strong>${formatCurrency(totalCurrentMonthSpent)}</strong> this month,
+                         consider looking for subscription services you can cancel or areas where small daily purchases add up significantly!</p>
+                    `;
+                } else if (totalCurrentMonthSpent > 0 && totalCurrentMonthSpent <= 7000 && currentMonthExpenses.length > 0) { 
+                     summaryContentDiv.innerHTML += `
+                        <p class="good-news"><i class="fas fa-seedling"></i> Fantastic! Your current month's spending of <strong>${formatCurrency(totalCurrentMonthSpent)}</strong> is quite low. This indicates good spending habits. Keep tracking to maintain this!</p>
+                    `;
+                } else if (expenses.length > 20 && currentMonthExpenses.length < 5 && totalCurrentMonthSpent === 0) { 
+                    summaryContentDiv.innerHTML += `
+                        <p><i class="fas fa-sync"></i> Haven't logged many expenses this month? Remember, regular tracking leads to the best insights and better financial control!</p>
+                    `;
+                }
+
+
+                // Add a closing line for a nice touch
+                summaryContentDiv.innerHTML += `
+                    <p style="border:none; margin-top:18px; text-align:center; font-style: italic; font-size: 0.85rem; color: rgba(255,255,255,0.6); background: none; padding-top: 5px; padding-bottom: 5px;">
+                        *Insights based on available data and general spending patterns. Always cross-check!*
+                    </p>
+                `;
+            };
+
+
+            const renderExpenses = () => {
+                const expensesToRender = getFilteredAndSortedExpenses(); // Use helper function
+
+                expenseTableBody.innerHTML = '';
+
+                if (expensesToRender.length === 0) {
+                    const message = expenses.length === 0 
+                        ? 'No expenses added yet.' 
+                        : 'No expenses match your current filters and date range.';
+                    expenseTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 25px 0; color: rgba(255,255,255,0.7);">${message}</td></tr>`;
+                } else {
+                    expensesToRender.forEach((expense, index) => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'expense-item';
+                        tr.style.animationDelay = `${Math.min(index * 50, 500)}ms`; // Cap animation delay to 500ms for large lists
+                        
+                        const date = new Date(expense.date + 'T00:00:00Z'); // Consistent parsing as UTC date
+                        const formattedDate = date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+                        
+                        tr.innerHTML = `
+                            <td data-label="Date">${formattedDate}</td>
+                            <td data-label="Category">${expense.category}</td>
+                            <td data-label="Description">${expense.description}</td>
+                            <td data-label="Amount" class="col-amount">${formatCurrency(expense.amount)}</td>
+                            <td data-label="Actions" class="col-actions">
+                                <button class="action-btn edit-btn" data-id="${expense.id}" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn duplicate-btn" data-id="${expense.id}" title="Duplicate"><i class="fas fa-copy"></i></button>
+                                <button class="action-btn delete-btn" data-id="${expense.id}" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        expenseTableBody.appendChild(tr);
+                    });
+                }
+                updateSortIcons();
+            };
+
+            const updateSortIcons = () => {
+                document.querySelectorAll('.expense-table th').forEach(header => {
+                    const sortKey = header.dataset.sortBy;
+                    const iconSpan = header.querySelector('.sort-icon');
+                    if (iconSpan) {
+                        let icon = '';
+                        if (sortKey === sortConfig.key) {
+                            icon = sortConfig.direction === 'asc' ? ' ↑' : ' ↓';
+                            header.classList.add('sorted');
+                        } else {
+                            header.classList.remove('sorted');
+                        }
+                        iconSpan.textContent = icon;
+                    }
+                });
+            };
+
+            // --- Welcome Message Logic ---
+            const updateWelcomeMessage = () => {
+                let userName = localStorage.getItem('userName');
+                if (!userName) {
+                    userName = prompt("Welcome to your Smart Expense Tracker! What's your name?");
+                    if (userName) {
+                        localStorage.setItem('userName', userName.trim());
+                    } else {
+                        userName = "Guest";
+                    }
+                }
+                welcomeMessageElement.textContent = `Hello, ${userName}! Let's track your expenses.`;
+            };
+
+
+            // --- Event Listeners ---
+
+            // Set initial expense date to today
+            document.getElementById('expense-date').valueAsDate = new Date();
+
+            // Form Submissions
+            expenseForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!validateForm(expenseForm)) {
+                    showToast('Please correct the highlighted fields.', 'error');
+                    return;
+                }
+
+                const newExpense = {
+                    id: Date.now(), 
+                    date: toLocalDateInput(document.getElementById('expense-date').value),
+                    category: document.getElementById('expense-category').value,
+                    description: document.getElementById('expense-description').value.trim(),
+                    amount: parseFloat(document.getElementById('expense-amount').value),
+                };
+                expenses.push(newExpense);
+                saveExpenses();
+                expenseForm.reset();
+                document.getElementById('expense-date').valueAsDate = new Date(); 
+                clearValidationErrors(expenseForm);
+                showToast('Expense Added Successfully!', 'success');
+            });
+
+            // Expense Table Actions (Edit, Duplicate, Delete)
+            expenseTableBody.addEventListener('click', (e) => {
+                const button = e.target.closest('.action-btn');
+                if (!button) return;
+
+                const id = parseInt(button.dataset.id);
+                const rowIndex = expenses.findIndex(exp => exp.id === id);
+                if (rowIndex === -1) {
+                    showToast('Expense not found!', 'error');
+                    return;
+                }
+
+                if (button.classList.contains('delete-btn')) {
+                    const rowToDelete = button.closest('tr');
+                    if(rowToDelete) { // Ensure row exists before animating
+                        rowToDelete.classList.add('item-exit');
+                        rowToDelete.addEventListener('animationend', () => {
+                            expenses.splice(rowIndex, 1);
+                            saveExpenses();
+                            showToast('Expense Deleted.', 'info');
+                        }, { once: true });
+                    }
+                } else if (button.classList.contains('duplicate-btn')) {
+                    const expenseToDuplicate = expenses[rowIndex];
+                    const duplicatedExpense = { 
+                        ...expenseToDuplicate, 
+                        id: Date.now(), 
+                        date: toLocalDateInput(new Date().toISOString()), 
+                        description: `(Copy) ${expenseToDuplicate.description}`
+                    };
+                    expenses.push(duplicatedExpense);
+                    saveExpenses();
+                    showToast('Expense Duplicated!', 'info');
+                } else if (button.classList.contains('edit-btn')) {
+                    const expenseToEdit = expenses[rowIndex];
+                    currentEditId = id;
+                    document.getElementById('edit-date').value = toLocalDateInput(expenseToEdit.date);
+                    document.getElementById('edit-category').value = expenseToEdit.category;
+                    document.getElementById('edit-description').value = expenseToEdit.description;
+                    document.getElementById('edit-amount').value = expenseToEdit.amount;
+                    clearValidationErrors(editForm);
+                    showModal(editModal);
+                }
+            });
+
+            // Edit Form Submission
+            editForm.addEventListener('submit', e => {
+                e.preventDefault();
+                if (!validateForm(editForm)) {
+                    showToast('Please correct the highlighted fields.', 'error');
+                    return;
+                }
+
+                const expenseIndex = expenses.findIndex(exp => exp.id === currentEditId);
+                if (expenseIndex > -1) {
+                    expenses[expenseIndex] = {
+                        id: currentEditId,
+                        date: toLocalDateInput(document.getElementById('edit-date').value),
+                        category: document.getElementById('edit-category').value,
+                        description: document.getElementById('edit-description').value.trim(),
+                        amount: parseFloat(document.getElementById('edit-amount').value),
+                    };
+                    saveExpenses();
+                    showToast('Changes Saved!', 'success');
+                }
+                closeModal(editModal);
+                currentEditId = null;
+            });
+
+            // Add Category Functionality
+            addCategoryBtn.addEventListener('click', () => {
+                clearValidationErrors(addCategoryForm);
+                document.getElementById('new-category-name').value = '';
+                showModal(addCategoryModal);
+            });
+
+            addCategoryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newCatNameInput = document.getElementById('new-category-name');
+                const newCategoryName = newCatNameName.value.trim(); // Typo corrected: newCatNameName -> newCatNameInput
+
+                if (!validateInput(newCatNameInput)) return; 
+                
+                categories.push(newCategoryName);
+                saveCategories();
+                closeModal(addCategoryModal);
+                showToast(`Category "${newCategoryName}" Added!`, 'success');
+            });
+            
+            // Global Cancel Button for Modals
+            document.querySelectorAll('.cancel-modal-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const parentModal = e.target.closest('.modal-overlay');
+                    if (parentModal) closeModal(parentModal);
+                });
+            });
+
+            // Clear All Data Confirmation
+            clearDataBtn.addEventListener('click', () => {
+                const isCategoriesDefault = JSON.stringify([...categories].sort()) === JSON.stringify([...DEFAULT_CATEGORIES].sort());
+                const hasExpenses = expenses.length > 0;
+
+                if (!hasExpenses && isCategoriesDefault) {
+                    showToast('No user data to clear.', 'info');
+                    return;
+                }
+                showModal(clearConfirmModal);
+            });
+
+            confirmClearDataBtn.addEventListener('click', () => {
+                expenses = [];
+                categories = [...DEFAULT_CATEGORIES]; // Reset categories to default
+                localStorage.clear(); // Clears all local storage, including sort config and username
+
+                // Resetting sort config on clear, so fresh start.
+                sortConfig = { key: 'date', direction: 'desc' };
+                localStorage.setItem('sortConfig', JSON.stringify(sortConfig));
+                
+                // Re-initialize state and UI
+                saveExpenses(); 
+                saveCategories(); 
+                updateWelcomeMessage(); // Re-prompt for name after clearing data
+
+                closeModal(clearConfirmModal);
+                showToast('All expense data cleared!', 'success');
+            });
+
+            // Filtering and Date range - re-render expenses on change
+            categoryFilter.addEventListener('change', renderExpenses);
+            startDateFilter.addEventListener('change', () => { 
+                validateInput(startDateFilter); 
+                validateInput(endDateFilter); 
+                renderExpenses(); 
+            });
+            endDateFilter.addEventListener('change', () => { 
+                validateInput(endDateFilter); 
+                validateInput(startDateFilter); 
+                renderExpenses(); 
+            });
+
+            // Table Header Sorting
+            document.querySelectorAll('.expense-table th[data-sort-by]').forEach(header => {
+                header.addEventListener('click', () => {
+                    const newSortKey = header.dataset.sortBy;
+                    if (sortConfig.key === newSortKey) {
+                        sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        sortConfig.key = newSortKey;
+                        // Default sorting directions:
+                        if (newSortKey === 'date' || newSortKey === 'amount') {
+                            sortConfig.direction = 'desc'; // Descending for dates (latest first) and amounts (highest first)
+                        } else {
+                            sortConfig.direction = 'asc'; // Ascending for text (alphabetical)
+                        }
+                    }
+                    localStorage.setItem('sortConfig', JSON.stringify(sortConfig));
+                    renderExpenses();
+                });
+            });
+
+            // Helper function to get currently filtered and sorted expenses for reports/exports
+            const getFilteredAndSortedExpenses = () => {
+                const filterValue = categoryFilter.value;
+                const start = startDateFilter.value ? new Date(startDateFilter.value + 'T00:00:00Z') : null;
+                const end = endDateFilter.value ? new Date(endDateFilter.value + 'T00:00:00Z') : null;
+
+                let filtered = [...expenses];
+
+                if (filterValue !== 'all') {
+                    filtered = filtered.filter(exp => exp.category === filterValue);
+                }
+                // Removed search-by-description filtering logic
+                if (start && !isNaN(start.getTime())) { // Check for valid date before comparing
+                    filtered = filtered.filter(exp => new Date(exp.date + 'T00:00:00Z') >= start);
+                }
+                if (end && !isNaN(end.getTime())) { // Check for valid date before comparing
+                    // To include expenses on the end date, set the end of the day.
+                    // This creates a date at 23:59:59.999 UTC for accurate range checking.
+                    const endOfDay = new Date(end.valueOf()); // Copy date
+                    endOfDay.setUTCHours(23, 59, 59, 999);
+                    filtered = filtered.filter(exp => new Date(exp.date + 'T00:00:00Z') <= endOfDay);
+                }
+
+                // Apply current sorting configuration for table display consistency
+                filtered.sort((a, b) => {
+                    let valA, valB;
+                    if (sortConfig.key === 'date') {
+                        valA = new Date(a.date);
+                        valB = new Date(b.date);
+                    } else if (sortConfig.key === 'amount') {
+                        valA = a.amount;
+                        valB = b.amount;
+                    } else {
+                        valA = String(a[sortConfig.key]).toLowerCase(); 
+                        valB = String(b[sortConfig.key]).toLowerCase();
+                    }
+
+                    if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+                    if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
+                
+                return filtered;
+            };
+
+            // Email Report Functionality
+            sendEmailBtn.addEventListener('click', () => {
+                const expensesToReport = getFilteredAndSortedExpenses();
+                if (expensesToReport.length === 0) {
+                    showToast('There are no expenses to report matching your current filters.', 'info');
+                    return;
+                }
+
+                const email = prompt("Please enter your email address to send the report:");
+                if (!email) { showToast("Email sending cancelled.", 'info'); return; }
+                if (!email.includes('@')) { showToast("Please enter a valid email address.", 'error'); return; }
+                
+                const userName = localStorage.getItem('userName') || "User";
+                const totalReportAmount = expensesToReport.reduce((sum, expense) => sum + expense.amount, 0);
+
+                let dateRange = "All Time";
+                let currentMonthYear = '';
+                const startDate = startDateFilter.value ? new Date(startDateFilter.value + 'T00:00:00Z') : null;
+                const endDate = endDateFilter.value ? new Date(endDateFilter.value + 'T00:00:00Z') : null;
+
+                if (startDate && endDate) {
+                    dateRange = `${startDate.toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric', timeZone:'UTC'})} - ${endDate.toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric', timeZone:'UTC'})}`;
+                } else if (startDate) {
+                    dateRange = `From ${startDate.toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric', timeZone:'UTC'})}`;
+                } else if (endDate) {
+                    dateRange = `To ${endDate.toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric', timeZone:'UTC'})}`;
+                } else {
+                     // Try to guess a single month if possible (for typical monthly reports)
+                     if (expensesToReport.length > 0) {
+                        const firstDate = new Date(expensesToReport[0].date + 'T00:00:00Z');
+                        const lastDate = new Date(expensesToReport[expensesToReport.length - 1].date + 'T00:00:00Z');
+                        if (firstDate.getUTCMonth() === lastDate.getUTCMonth() && firstDate.getUTCFullYear() === lastDate.getUTCFullYear()) {
+                            dateRange = `${firstDate.toLocaleDateString('en-US', {month:'long', year:'numeric', timeZone:'UTC'})}`;
+                            currentMonthYear = dateRange; // Use this for the subject if applicable
+                        }
+                    }
+                }
+
+                // Calculate top categories for the *report period*
+                const spendingByCategoryReport = expensesToReport.reduce((acc, exp) => {
+                    acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
+                    return acc;
+                }, {});
+
+                const sortedTopCategories = Object.entries(spendingByCategoryReport)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 3); // Top 3 categories
+
+                let topCategoriesSummary = '';
+                if (sortedTopCategories.length > 0) {
+                    topCategoriesSummary = sortedTopCategories.map(([cat, amount]) => {
+                        const percent = (amount / totalReportAmount) * 100;
+                        return `- ${cat}: ${formatCurrency(amount)} (${percent.toFixed(1)}%)`;
+                    }).join('\n');
+                } else {
+                    topCategoriesSummary = 'No categorized spending for this period.';
+                }
+                
+                // Construct Subject Line
+                let subject = 'Smart Expense Tracker Report';
+                if (currentMonthYear) {
+                    subject = `${currentMonthYear} Expense Report - Smart Expense Tracker`;
+                } else if (dateRange !== 'All Time') {
+                    subject += ` (${dateRange})`;
+                }
+
+
+                let body = '';
+                body += `Dear ${userName},\n\n`;
+                body += `Here is your detailed expense report for the period: ${dateRange}.\n\n`;
+                body += `--- REPORT SUMMARY ---\n`;
+                body += `Total Spending: ${formatCurrency(totalReportAmount)}\n\n`;
+                body += `Top Categories:\n${topCategoriesSummary}\n`;
+                body += `----------------------\n\n`;
+
+                body += `--- DETAILED EXPENSES ---\n\n`;
+                body += `Date       Category         Description                 Amount\n`;
+                body += `---------- --------------- ---------------------------- ----------\n`;
+                expensesToReport.forEach(expense => {
+                    const date = new Date(expense.date + 'T00:00:00Z'); 
+                    const formattedDate = date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit', timeZone: 'UTC' });
+                    
+                    const paddedDescription = expense.description.length > 25 ? expense.description.substring(0, 22) + '...' : expense.description;
+
+                    body += `${formattedDate.padEnd(11)}`; // Fixed width for date
+                    body += `${expense.category.padEnd(16)}`; // Fixed width for category
+                    body += `${paddedDescription.padEnd(29)}`; // Fixed width for description
+                    body += `${formatCurrency(expense.amount).padStart(10)}\n`; // Right-aligned amount
+                });
+                body += `-----------------------------------------------------------\n`;
+                body += `TOTAL:                                                ${formatCurrency(totalReportAmount).padStart(10)}\n`;
+                body += `===========================================================\n\n`;
+
+                let filtersApplied = [];
+                if (categoryFilter.value !== 'all') { filtersApplied.push(`Category: ${categoryFilter.value}`); }
+                if (startDateFilter.value) { filtersApplied.push(`From Date: ${toLocalDateInput(startDateFilter.value)}`); }
+                if (endDateFilter.value) { filtersApplied.push(`To Date: ${toLocalDateInput(endDateFilter.value)}`); }
+
+                if (filtersApplied.length > 0) {
+                    body += `Note: This report includes data filtered by: ${filtersApplied.join(', ')}.\n\n`;
+                }
+                
+                body += `We hope this report helps you in managing your finances effectively!\n`;
+                body += `\nBest regards,\nYour Smart Expense Tracker Team\n`;
+                body += `\nThis report was generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}.`;
+                
+                const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = mailtoLink;
+                
+                showToast('Attempting to open email client with report...', 'info', 3000);
+                
+                // Offer to copy to clipboard after a short delay (for fallback)
+                setTimeout(() => {
+                    const userConfirmedCopy = confirm("Your email client should have opened now. If it didn't, would you like to copy the report text to your clipboard instead?");
+                    if (userConfirmedCopy) {
+                        navigator.clipboard.writeText(body)
+                            .then(() => showToast('Report copied to clipboard!', 'success', 4000))
+                            .catch(err => showToast('Failed to copy report to clipboard: ' + err, 'error', 4000));
+                    }
+                }, 1000); 
+            });
+
+
+            // Event delegation for validation: real-time validation on blur for inputs and change for select
+            document.querySelectorAll('input[required], select[required], input[type="number"], #new-category-name').forEach(input => {
+                input.addEventListener('blur', () => validateInput(input));
+                input.addEventListener('input', () => { 
+                    // Only re-validate on input if the field is already marked invalid
+                    if (input.classList.contains('invalid')) { 
+                        validateInput(input);
+                    }
+                });
+            });
+
+
+            // --- Initialization ---
+            const initializeApp = () => {
+                updateWelcomeMessage(); // Initialize welcome message
+                populateCategoryDropdowns();
+                document.getElementById('expense-date').valueAsDate = new Date(); 
+                renderExpenses(); 
+                updateTotal();
+                updateExpenseSummary(); // Initialize the new summary section
+            };
+
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
