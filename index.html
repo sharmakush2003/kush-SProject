@@ -42,28 +42,30 @@
             --bg-glass-active: rgba(0,0,0,0.6); /* More distinct hover/focus background for glass elements */
         }
 
-        /* ALL KEYFRAME ANIMATIONS REMOVED (except if body animation is necessary)*/
+        /* ALL KEYFRAME ANIMATIONS REMOVED (except for background, as it's not "lighting" UI)*/
         @keyframes gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-        /* Keeping this background animation as it doesn't cause "flickering" within the app UI itself, but adds to visual flair. */
-
-
+       
         /* Base styles */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(-45deg, #2c3e50, #34495e, #23a6d5, #23d5ab);
-            background-size: 400% 400%; animation: gradient-animation 15s ease infinite; /* Kept for background effect */
+            background-size: 400% 400%; animation: gradient-animation 15s ease infinite; 
             color: var(--text-color); min-height: 100vh; padding: 20px;
             display: flex; align-items: center; justify-content: center;
             position: relative;
         }
 
-        /* New button for developer info */
+        /* New section for app footer (developer info button + copyright) */
+        .app-footer {
+            text-align: center;
+            margin-top: 60px; /* More space from content above */
+            padding-top: 30px; /* Padding for the top border/separator */
+            border-top: 1px dashed rgba(255, 255, 255, 0.15); /* Subtle separator, like in summary */
+        }
+
         #dev-info-button {
-            position: fixed;
-            top: 20px; /* Adjust as needed */
-            right: 20px; /* Adjust as needed */
             background: rgba(0, 0, 0, 0.35); /* Same as input background for subtle integration */
             color: var(--white-color);
             padding: 10px 18px;
@@ -73,17 +75,26 @@
             font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
             font-weight: 500;
-            display: flex;
+            display: flex; /* Ensures icon and text align */
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 10;
+            /* Position the button centered within its parent .app-footer */
+            margin: 0 auto 15px auto; /* Top, Right, Bottom, Left */
+            width: fit-content; /* Ensure button only takes necessary width */
         }
 
         #dev-info-button:hover {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.5); /* Slightly darker on hover */
         }
 
+        .copyright-notice {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6); /* Soft, slightly translucent white */
+            margin-bottom: 0; /* No margin at bottom of footer */
+            font-weight: 300; /* Lighter font-weight for subtlety */
+            letter-spacing: 0.5px; /* Slight letter spacing */
+        }
 
         .container {
             width: 100%; max-width: 950px; padding: 40px; 
@@ -299,7 +310,7 @@
             max-height: 400px; overflow-y: auto; 
             background: rgba(0,0,0,0.28);
             border-radius: 10px; 
-            border: 1px solid var(--border-alpha);
+            border: 1: solid var(--border-alpha);
             box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
         }
         .expense-table-container::-webkit-scrollbar { width: 10px; } 
@@ -349,12 +360,12 @@
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
         .toast.show {
-            opacity: 1; /* Make visible */
-            transform: translateX(0); /* Slide into view */
+            opacity: 1; /* Make visible instantly */
+            transform: translateX(0); /* Move into view instantly */
         }
         .toast.hide-effect {
-            opacity: 0;
-            transform: translateX(100%);
+            opacity: 0; /* Make invisible instantly */
+            transform: translateX(100%); /* Move off-screen instantly */
         }
         .toast i { font-size: 1.2em; }
         .toast.success { border-left: 6px solid var(--success-color); } 
@@ -381,20 +392,19 @@
             background: var(--modal-bg); border-radius: 20px; 
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), inset 0 0 10px rgba(255,255,255,0.05); 
             border: 1px solid var(--border-alpha); 
-            padding: 45px; width: 90%; max-width: 650px; /* Slightly wider for About section */
-            transform: scale(1); /* Ensure it's not scaled */
-            opacity: 1; /* Ensure it's not transparent */
-            /* Default display based on parent. Will be block/flex from .modal-overlay.active */
-            position: relative; /* For overflow if content grows */
-            max-height: 90vh; /* Prevent modal from becoming taller than screen */
-            overflow-y: auto; /* Enable scroll if content is too long */
+            padding: 45px; width: 90%; max-width: 650px; 
+            transform: scale(1); 
+            opacity: 1; 
+            position: relative; 
+            max-height: 90vh; 
+            overflow-y: auto; 
         }
         /* Specific content styles for the developer modal */
         #developer-modal .modal-content {
-            text-align: left; /* Align text within about me */
+            text-align: left;
         }
         #developer-modal .modal-content h2 {
-            margin: 0 0 20px 0; /* Adjust spacing */
+            margin: 0 0 20px 0; 
             padding-top: 0;
             border-top: none;
             justify-content: flex-start;
@@ -435,14 +445,11 @@
             color: var(--accent-color);
         }
 
-        /* ALL RESPONSIVE DESIGN BREAKPOINTS AND MOBILE-SPECIFIC STYLES REMOVED IN PREVIOUS TURN */
+        /* ALL RESPONSIVE DESIGN BREAKPOINTS AND MOBILE-SPECIFIC STYLES REMOVED */
     </style>
 </head>
 <body>
-    <button id="dev-info-button" aria-label="Developer Information">
-        <i class="fas fa-code" aria-hidden="true"></i> Developer Info
-    </button>
-
+    <!-- Main content container -->
     <div class="container">
         <h1>Smart Expense Tracker 💰</h1>
         <p id="welcome-message"></p>
@@ -530,6 +537,16 @@
             </div>
         </div>
 
+        <!-- NEW: App Footer Section for Developer Info and Copyright -->
+        <div class="app-footer">
+            <button id="dev-info-button" aria-label="Developer Information">
+                <i class="fas fa-code" aria-hidden="true"></i> About the Developer
+            </button>
+            <p class="copyright-notice">
+                All rights reserved © Kush Sharma 2025
+            </p>
+        </div>
+
     </div>
 
     <!-- Developer Info Modal -->
@@ -586,7 +603,7 @@
     </div>
 
 
-    <!-- Edit Modal -->
+    <!-- Edit Modal (position unchanged) -->
     <div class="modal-overlay" id="edit-modal">
         <div class="modal-content">
             <h2>Edit Expense ✍️</h2>
@@ -621,7 +638,7 @@
         </div>
     </div>
 
-    <!-- Add Category Modal -->
+    <!-- Add Category Modal (position unchanged) -->
     <div class="modal-overlay" id="add-category-modal">
         <div class="modal-content">
             <h2>Add New Category ✨</h2>
@@ -639,7 +656,7 @@
         </div>
     </div>
 
-    <!-- Clear All Data Confirmation Modal -->
+    <!-- Clear All Data Confirmation Modal (position unchanged) -->
     <div class="modal-overlay" id="clear-confirm-modal">
         <div class="modal-content">
             <h2>Confirm Clear Data ⚠️</h2>
@@ -651,7 +668,7 @@
         </div>
     </div>
 
-    <!-- Toast Notifications Container -->
+    <!-- Toast Notifications Container (position unchanged) -->
     <div id="toast-container"></div>
 
     <script>
@@ -684,15 +701,16 @@
             const clearConfirmModal = document.getElementById('clear-confirm-modal');
             const confirmClearDataBtn = document.getElementById('confirm-clear-data-btn');
             
-            // New: Developer Info Modal Elements
+            // Developer Info Modal Elements
             const developerModal = document.getElementById('developer-modal');
             const devInfoButton = document.getElementById('dev-info-button');
 
             // --- State Variables ---
             let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
             let categories = JSON.parse(localStorage.getItem('categories')) || DEFAULT_CATEGORIES;
-            let currentEditId = null;
             let sortConfig = JSON.parse(localStorage.getItem('sortConfig')) || { key: 'date', direction: 'desc' }; 
+            let currentEditId = null; // Defined higher up to ensure scope consistency
+
 
             // --- Helper Functions ---
             const stripEmojis = (str) => {
@@ -721,21 +739,18 @@
                 toast.innerHTML = `${icon} <span>${message}</span>`;
                 toastContainer.appendChild(toast);
 
-                // Make toast visible instantly
-                toast.style.opacity = 1;
-                toast.style.transform = 'translateX(0)';
+                toast.classList.add('show'); // Trigger immediate show
 
-                // Hide after duration instantly
                 setTimeout(() => {
-                    toast.style.opacity = 0;
-                    toast.style.transform = 'translateX(100%)';
-                    setTimeout(() => toast.remove(), 10); // A small delay to ensure CSS updates apply before removal
+                    toast.classList.remove('show');
+                    toast.classList.add('hide-effect'); // Trigger immediate hide
+                    setTimeout(() => toast.remove(), 10); 
                 }, duration);
             };
 
             const showModal = (modalElement) => {
-                modalElement.classList.add('active'); // Toggles display: flex, opacity: 1 instantly
-                setTimeout(() => { // Keep timeout for focus behavior, even if no animation
+                modalElement.classList.add('active'); 
+                setTimeout(() => { 
                     const firstInput = modalElement.querySelector('input, select, textarea, button:not(.cancel-modal-btn)');
                     if (firstInput) {
                         firstInput.focus();
@@ -746,7 +761,7 @@
             };
 
             const closeModal = (modalElement) => {
-                modalElement.classList.remove('active'); // Toggles display: none, opacity: 0 instantly
+                modalElement.classList.remove('active'); 
                 const formInModal = modalElement.querySelector('form');
                 if (formInModal) {
                     clearValidationErrors(formInModal);
@@ -1521,7 +1536,7 @@
                 });
             });
 
-            // New: Event listener for Developer Info button
+            // Event listener for Developer Info button
             devInfoButton.addEventListener('click', () => {
                 showModal(developerModal);
             });
