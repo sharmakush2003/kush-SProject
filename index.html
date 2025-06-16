@@ -166,6 +166,33 @@
             box-shadow: 0 4px 10px var(--shadow-button);
         }
         #settings-button:hover { background: var(--bg-glass-active); }
+
+        /* --- TOTAL EXPENSES DISPLAY (ENHANCED) --- */
+        .total-expenses-wrapper {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid var(--border-alpha);
+        }
+        .total-expenses h3 { 
+            font-weight: 500; 
+            font-size: 1.1rem; 
+            color: rgba(255, 255, 255, 0.8); 
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        } 
+        .total-expenses #total-amount { 
+            font-size: 3.5rem; 
+            font-weight: 800; 
+            color: var(--accent-color); 
+            text-shadow: 0 3px 10px rgba(0,0,0,0.4);
+        }
         
         /* --- FORM ELEMENTS --- */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
@@ -490,10 +517,13 @@
     <div class="container">
         <h1>Smart Expense Tracker 💰</h1>
         <p id="welcome-message"></p>
-
-        <div class="total-expenses">
-            <h3>Total Lifetime Expenses</h3>
-            <div id="total-amount">₹0.00</div>
+        
+        <!-- ENHANCED TOTAL EXPENSES DISPLAY -->
+        <div class="total-expenses-wrapper">
+            <div class="total-expenses">
+                <h3><i class="fas fa-wallet"></i>Total Lifetime Expenses</h3>
+                <div id="total-amount">₹0.00</div>
+            </div>
         </div>
 
         <div id="expenses-section">
@@ -816,6 +846,7 @@
                 toast.classList.add('show');
                 if (duration > 0) {
                     setTimeout(() => {
+                        toast.classList.remove('show');
                         toast.classList.add('hide-effect');
                         setTimeout(() => toast.remove(), 300);
                     }, duration);
@@ -924,10 +955,16 @@
 
                 if (!isValid) {
                     inputElement.classList.add('invalid');
-                    if (errorMessageElement) errorMessageElement.textContent = errorMessage;
+                    if (errorMessageElement) {
+                        errorMessageElement.textContent = errorMessage;
+                        errorMessageElement.style.opacity = 1;
+                    }
                 } else {
                     inputElement.classList.remove('invalid');
-                    if (errorMessageElement) errorMessageElement.textContent = '';
+                    if (errorMessageElement) {
+                        errorMessageElement.textContent = '';
+                        errorMessageElement.style.opacity = 0;
+                    }
                 }
                 return isValid;
             };
@@ -1327,25 +1364,30 @@
                 });
             };
 
-            const sendDataEmail = () => {
-                if (expenses.length === 0) {
+            const sendDataEmail = (isBackup = false) => {
+                const expensesToReport = isBackup ? expenses : getFilteredAndSortedExpenses();
+                if (expensesToReport.length === 0) {
                     showToast('No data to send.', 'info');
-                    confirmClearDataBtn.disabled = false;
+                    if (isBackup) confirmClearDataBtn.disabled = false;
                     return;
                 }
                 const email = prompt("Enter your email address to send the report:");
                 if (!email || !email.includes('@')) {
                     showToast('Invalid email or cancelled.', 'error');
+                    if (isBackup) confirmClearDataBtn.disabled = false; // Allow deletion even if mail fails
                     return;
                 }
                 const userName = localStorage.getItem('userName') || "User";
-                const totalReportAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
-                let subject = `Expense Tracker Backup - ${new Date().toLocaleDateString()}`;
-                let body = `Dear ${userName},\n\nHere is your full expense data backup.\n\nTotal Lifetime Spending: ${formatCurrency(totalReportAmount)}\n\n---ALL EXPENSES---\n`;
-                body += expenses.map(e => `${toLocalDateInput(e.date)} | ${stripEmojis(e.category)} | ${e.description} | ${formatCurrency(e.amount)}`).join('\n');
+                const totalReportAmount = expensesToReport.reduce((sum, e) => sum + e.amount, 0);
+                const subject = isBackup ? `Expense Tracker Backup - ${new Date().toLocaleDateString()}` : 'Smart Expense Tracker Report';
+                let body = `Dear ${userName},\n\nHere is your expense report.\n\nTotal: ${formatCurrency(totalReportAmount)}\n\n---DETAILS---\n`;
+                body += expensesToReport.map(e => `${toLocalDateInput(e.date)} | ${stripEmojis(e.category)} | ${e.description} | ${formatCurrency(e.amount)}`).join('\n');
                 window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                showToast('Email client opened. Deletion is now enabled.', 'success');
-                confirmClearDataBtn.disabled = false;
+                
+                if (isBackup) {
+                    showToast('Email client opened. Deletion is now enabled.', 'success');
+                    confirmClearDataBtn.disabled = false;
+                }
             };
 
             // --- Event Listeners ---
@@ -1448,13 +1490,13 @@
             
             clearDataBtn.addEventListener('click', () => {
                 if (expenses.length > 0 || categories.length > DEFAULT_CATEGORIES.length) {
-                    confirmClearDataBtn.disabled = true; // Reset button state
+                    confirmClearDataBtn.disabled = true; // Reset button state on open
                     showModal(clearConfirmModal);
                 }
                 else showToast('No user data to clear. 🧹', 'info');
             });
-
-            clearDataSendReportBtn.addEventListener('click', sendDataEmail);
+            
+            clearDataSendReportBtn.addEventListener('click', () => sendDataEmail(true));
             
             confirmClearDataBtn.addEventListener('click', () => {
                 expenses = []; categories = [...DEFAULT_CATEGORIES]; budgets = {}; recurringTemplates = [];
@@ -1484,22 +1526,7 @@
                 });
             });
 
-            sendEmailBtn.addEventListener('click', () => {
-                const expensesToReport = getFilteredAndSortedExpenses();
-                if (expensesToReport.length === 0) {
-                    showToast('No expenses to report for current filters.', 'info'); return;
-                }
-                const email = prompt("Enter your email address to send the report:");
-                if (!email || !email.includes('@')) {
-                    showToast('Invalid email or cancelled.', 'error'); return;
-                }
-                const userName = localStorage.getItem('userName') || "User";
-                const totalReportAmount = expensesToReport.reduce((sum, e) => sum + e.amount, 0);
-                let subject = 'Smart Expense Tracker Report';
-                let body = `Dear ${userName},\n\nHere is your expense report.\n\nTotal: ${formatCurrency(totalReportAmount)}\n\n---DETAILS---\n`;
-                body += expensesToReport.map(e => `${toLocalDateInput(e.date)} | ${stripEmojis(e.category)} | ${e.description} | ${formatCurrency(e.amount)}`).join('\n');
-                window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            });
+            sendEmailBtn.addEventListener('click', () => sendDataEmail(false));
 
             // New Feature Listeners
             setBudgetsBtn.addEventListener('click', (e) => { e.preventDefault(); populateBudgetModal(); showModal(budgetModal); closeModal(settingsModal); });
