@@ -18,7 +18,8 @@
             
             NEW FEATURES:
             - Currency Selector: User can pick currency from settings.
-            - Dark/Light Mode: Toggle between themes.
+            - Dark Mode ONLY: Removed light mode option.
+            - Report Bug Option: User can send an email to the developer for bugs.
             - Improved Footer: "Developer Info" button & Copyright.
 
             NOTE: No media queries for fluid responsiveness; designed for fixed desktop scaling.
@@ -27,7 +28,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
         
         :root {
-            /* Base Dark Theme Colors */
+            /* Base Dark Theme Colors - These will be the ONLY colors available now */
             --primary-color: #9B59B6; /* Amethyst */
             --secondary-color: #4BC0D9; /* Cyan-like Blue */
             --accent-color: #FFE66D; /* Soft Yellow/Gold */
@@ -53,59 +54,6 @@
             /* Dynamic Currency Symbol (JS will update this custom property) */
             --current-currency-symbol: '₹';
         }
-
-        /* Light Mode Variables - Overrides defaults when .light-mode is on body */
-        body.light-mode {
-            --primary-color: #7f52a8; /* Darker Amethyst for contrast */
-            --secondary-color: #0d8ca1; /* Darker Cyan */
-            --accent-color: #e6b200; /* Richer Gold */
-            --danger-color: #c0392b; 
-            --success-color: #27ae60; 
-            --info-color: #2980b9; 
-
-            --white-color: #2c3e50; /* Darker text for light background */
-            --text-color: #34495e; /* Main text color */
-            --background-gradient-start: #bdc3c7;
-            --background-gradient-mid-1: #ecf0f1;
-            --background-gradient-mid-2: #95a5a6;
-            --background-gradient-end: #65b8c9;
-
-            --soft-dark-bg: rgba(255, 255, 255, 0.75); /* Lighter, opaque base for glass */
-            --modal-bg: rgba(236, 240, 241, 0.98); /* Near-opaque light for modals */
-            --border-alpha: rgba(0, 0, 0, 0.2); /* Darker borders for light theme */
-            --input-border-alpha: rgba(0, 0, 0, 0.3); /* Darker borders for light inputs */
-            --shadow-light: rgba(0, 0, 0, 0.5); 
-            --shadow-button: rgba(0,0,0,0.3); 
-            --bg-glass-active: rgba(255, 255, 255, 0.9); /* Distinct hover/focus background */
-        }
-        
-        /* Apply light mode based on system preference */
-        @media (prefers-color-scheme: light) {
-            body:not([data-theme="dark"]) {
-                --primary-color: #7f52a8; 
-                --secondary-color: #0d8ca1;
-                --accent-color: #e6b200;
-                --danger-color: #c0392b; 
-                --success-color: #27ae60; 
-                --info-color: #2980b9; 
-
-                --white-color: #2c3e50; 
-                --text-color: #34495e; 
-                --background-gradient-start: #bdc3c7;
-                --background-gradient-mid-1: #ecf0f1;
-                --background-gradient-mid-2: #95a5a6;
-                --background-gradient-end: #65b8c9;
-
-                --soft-dark-bg: rgba(255, 255, 255, 0.75); 
-                --modal-bg: rgba(236, 240, 241, 0.98); 
-                --border-alpha: rgba(0, 0, 0, 0.2); 
-                --input-border-alpha: rgba(0, 0, 0, 0.3); 
-                --shadow-light: rgba(0, 0, 0, 0.5); 
-                --shadow-button: rgba(0,0,0,0.3); 
-                --bg-glass-active: rgba(255, 255, 255, 0.9); 
-            }
-        }
-
 
         /* All CSS Transitions and @keyframes (except for background) have been removed */
         @keyframes gradient-animation { 
@@ -191,10 +139,6 @@
             letter-spacing: 0.5px; 
         }
 
-        body.light-mode .copyright-notice {
-             color: rgba(0, 0, 0, 0.5); /* Darker for light mode */
-        }
-
 
         .container {
             width: 100%; max-width: 950px; padding: 40px; 
@@ -225,14 +169,10 @@
             font-weight: 400;
         }
         
-        body.light-mode #welcome-message {
-            color: rgba(0, 0, 0, 0.9);
-        }
-
 
         h2 {
             font-size: 2rem; 
-            text-align: center; color: var(--text-color); /* Updated to use dynamic text color */
+            text-align: center; color: var(--text-color); 
             margin: 45px 0 30px 0; 
             font-weight: 700;
             border-top: 1px solid var(--border-alpha); padding-top: 30px; 
@@ -245,9 +185,7 @@
         /* Total Expenses Section */
         .total-expenses { text-align: center; margin-bottom: 30px; }
         .total-expenses h3 { font-weight: 400; font-size: 1rem; color: rgba(255, 255, 255, 0.8); } 
-        body.light-mode .total-expenses h3 {
-             color: rgba(0, 0, 0, 0.7);
-        }
+        
 
         .total-expenses #total-amount { 
             font-size: 3.5rem; font-weight: 700; color: var(--accent-color); 
@@ -258,13 +196,13 @@
         .form-control.full-width { grid-column: 1 / -1; }
         .form-control { display: flex; flex-direction: column; position: relative; }
         label { margin-bottom: 10px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.95; 
-                color: var(--text-color); /* Ensure label text changes with theme */
+                color: var(--text-color); 
         } 
         
         input[type="text"], input[type="number"], input[type="date"], select {
             padding: 16px; border: 1px solid var(--input-border-alpha); border-radius: 10px; 
             font-size: 17px; background: rgba(0, 0, 0, 0.35); 
-            color: var(--text-color); /* Input text color dynamic */
+            color: var(--text-color); 
             font-family: 'Poppins', sans-serif;
             box-shadow: inset 0 3px 8px rgba(0,0,0,0.25); 
             -webkit-appearance: none; 
@@ -280,10 +218,6 @@
             padding-right: 40px; 
             cursor: pointer;
         }
-        /* Adjust select arrow for light mode */
-        body.light-mode select {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2334495e' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"); 
-        }
 
         /* Style for options within the select dropdown */
         select option {
@@ -291,13 +225,8 @@
             color: var(--text-color);
             padding: 10px; 
         }
-        body.light-mode select option {
-             background-color: #ecf0f1; /* Light color for dropdown option background */
-        }
-
 
         input::placeholder { color: rgba(255, 255, 255, 0.8); }
-        body.light-mode input::placeholder { color: rgba(0, 0, 0, 0.6); }
 
         input:focus, select:focus {
             outline: none; background: var(--bg-glass-active); 
@@ -339,22 +268,17 @@
         .btn-primary:hover { 
             background: linear-gradient(45deg, color-mix(in srgb, var(--primary-color) 80%, black), color-mix(in srgb, var(--secondary-color) 80%, black)); /* Slightly darker hover */
         } 
-        body.light-mode .btn-primary:hover {
-            background: linear-gradient(45deg, color-mix(in srgb, var(--primary-color) 80%, white), color-mix(in srgb, var(--secondary-color) 80%, white));
-        }
+        
 
         /* Secondary buttons should follow their colors more strictly, adjusting hover */
         .btn-danger { background-color: var(--danger-color); }
         .btn-danger:hover { background-color: color-mix(in srgb, var(--danger-color) 80%, black); }
-        body.light-mode .btn-danger:hover { background-color: color-mix(in srgb, var(--danger-color) 80%, white); }
 
         .btn-success { background-color: var(--success-color); }
         .btn-success:hover { background-color: color-mix(in srgb, var(--success-color) 80%, black); }
-        body.light-mode .btn-success:hover { background-color: color-mix(in srgb, var(--success-color) 80%, white); }
 
         .btn-info { background-color: var(--info-color); }
         .btn-info:hover { background-color: color-mix(in srgb, var(--info-color) 80%, black); }
-        body.light-mode .btn-info:hover { background-color: color-mix(in srgb, var(--info-color) 80%, white); }
         
         .btn i { margin-right: 10px; font-size: 1rem; } 
 
@@ -383,9 +307,6 @@
             margin-bottom: 30px;
             margin-top: 40px; 
         }
-        body.light-mode #expense-summary-section {
-             background: rgba(255,255,255,0.75); /* Light glass background for section */
-        }
         #expense-summary-section h3 {
             font-size: 1.6rem; 
             color: var(--accent-color);
@@ -409,14 +330,9 @@
             gap: 15px; 
             color: rgba(255,255,255,0.85); /* Summary paragraph text */
         }
-        body.light-mode #expense-summary-content p {
-            background: rgba(0,0,0,0.1); 
-            color: rgba(0,0,0,0.85);
-        }
 
         #expense-summary-content p:last-child { margin-bottom: 0; }
         #expense-summary-content strong { color: var(--white-color); }
-        body.light-mode #expense-summary-content strong { color: var(--text-color); }
 
         #expense-summary-content .good-news { border-left-color: var(--success-color); }
         #expense-summary-content .bad-news { border-left-color: var(--danger-color); }
@@ -457,21 +373,13 @@
             border: 1px solid var(--border-alpha);
             box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
         }
-        body.light-mode .expense-table-container {
-             background: rgba(0,0,0,0.1); /* Darker translucent for table in light mode */
-             box-shadow: inset 0 0 10px rgba(0,0,0,0.08);
-        }
         .expense-table-container::-webkit-scrollbar { width: 10px; } 
         .expense-table-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
-        body.light-mode .expense-table-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.15); }
         .expense-table-container::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; border: 2px solid rgba(0,0,0,0.2); } 
         .expense-table { width: 100%; border-collapse: collapse; }
         .expense-table th, .expense-table td { padding: 14px 18px; text-align: left; vertical-align: middle; color: var(--text-color); }
         .expense-table thead { position: sticky; top: 0; z-index: 10; }
         .expense-table thead tr { background: rgba(0, 0, 0, 0.7); border-bottom: 1px solid var(--border-alpha); } 
-        body.light-mode .expense-table thead tr {
-             background: rgba(255, 255, 255, 0.9);
-        }
 
         .expense-table th { 
             font-weight: 700; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.8px; 
@@ -479,20 +387,11 @@
             cursor: pointer; 
             white-space: nowrap;
         }
-        body.light-mode .expense-table th {
-            color: rgba(0, 0, 0, 0.95);
-        }
 
         .expense-table th:hover { 
             color: var(--accent-color); 
             background: rgba(0,0,0,0.75); 
         } 
-        body.light-mode .expense-table th:hover {
-            background: rgba(0,0,0,0.15);
-        }
-
-
-        .expense-table th.sorted { color: var(--secondary-color); }
 
         .expense-table th .sort-icon { margin-left: 8px; font-size: 0.8em; } 
 
@@ -500,16 +399,11 @@
             border-bottom: 1px dashed var(--border-alpha); 
             background-color: rgba(0,0,0,0.2); 
         } 
-        body.light-mode .expense-table tbody tr {
-             background-color: transparent;
-        }
-
+        
         .expense-table tbody tr:last-child { border-bottom: none; }
         .expense-table tbody tr:hover { background-color: rgba(0,0,0,0.45); } 
-        body.light-mode .expense-table tbody tr:hover { background-color: rgba(0,0,0,0.15); }
 
         .expense-table .col-amount { font-weight: 700; color: var(--accent-color); text-align: right; }
-        body.light-mode .expense-table .col-amount { color: var(--danger-color); } /* Danger for expenses in light mode is a common pattern */
 
         .expense-table .col-actions { width: 120px; text-align: center; }
 
@@ -520,7 +414,7 @@
             overflow: hidden; 
         } 
         .toast {
-            background-color: var(--modal-bg); color: var(--text-color); /* Toast text color */
+            background-color: var(--modal-bg); color: var(--text-color); 
             padding: 18px 30px; border-radius: 10px; 
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); 
             backdrop-filter: blur(12px); 
@@ -569,7 +463,7 @@
             position: relative; 
             max-height: 90vh; 
             overflow-y: auto; 
-            color: var(--text-color); /* Ensure modal text changes with theme */
+            color: var(--text-color); 
         }
 
         #settings-modal .modal-content {
@@ -584,43 +478,28 @@
             border-bottom: 1px dashed var(--border-alpha);
         }
         #settings-modal .settings-option:last-of-type { border-bottom: none; }
-        #settings-modal .settings-option label {
-            margin-bottom: 0; /* Override default label margin */
+        #settings-modal .settings-option label,
+        #settings-modal .settings-option .settings-action-link { /* Added for report bug link */
+            margin-bottom: 0; 
             font-size: 1rem;
-            text-transform: none; /* Default capitalization */
+            text-transform: none; 
             letter-spacing: normal;
         }
 
-        /* The toggle switch specific styles */
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
+        #settings-modal .settings-action-link { /* Styling for bug report link */
+            color: var(--info-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
         }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc; /* Grey for off */
-            border-radius: 28px; /* Rounded slider */
+        #settings-modal .settings-action-link:hover {
+            text-decoration: underline;
         }
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            border-radius: 50%;
-        }
-        input:checked + .toggle-slider { background-color: var(--primary-color); }
-        input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+        /* The toggle switch specific styles (removed from light mode enforce) */
+        /* .toggle-switch {} etc. styles are now unused as toggle is removed */
 
 
         /* Specific content styles for the developer modal (remain the same) */
@@ -773,7 +652,7 @@
                 <i class="fas fa-code" aria-hidden="true"></i> About the Developer
             </button>
             <p class="copyright-notice">
-                All rights reserved &copy; Kush Sharma 2025
+                All rights reserved © Kush Sharma 2025
             </p>
         </div>
 
@@ -787,12 +666,21 @@
                 <label for="currency-select">Currency:</label>
                 <select id="currency-select"></select>
             </div>
+            <!-- REMOVED: Light Mode Toggle
             <div class="settings-option">
                 <label for="theme-toggle">Light Mode:</label>
                 <label class="toggle-switch" aria-label="Toggle light mode">
                     <input type="checkbox" id="theme-toggle">
                     <span class="toggle-slider"></span>
                 </label>
+            </div> 
+            -->
+            <!-- NEW: Report Bug Option -->
+            <div class="settings-option">
+                <label>Report a Bug:</label>
+                <a href="mailto:kushsharma.cor@gmail.com?subject=Bug Report - Smart Expense Tracker&body=Hello Kush, I've found a bug in your Expense Tracker!\n\n**Description of the bug:**\n[Please describe the bug clearly here]\n\n**Steps to reproduce:**\n1.\n2.\n3.\n\n**Expected behavior:**\n\n**Actual behavior:**\n\n**Your Device/Browser (e.g., Chrome 120 on Windows 11):**\n\n**Any other details that might help:**\n" class="settings-action-link" aria-label="Report a bug via email" title="Send bug report email">
+                    <i class="fas fa-bug" aria-hidden="true"></i> Send Email
+                </a>
             </div>
             <div class="modal-actions" style="margin-top: 25px;">
                 <button type="button" class="btn btn-primary cancel-modal-btn"><i class="fas fa-check" aria-hidden="true"></i> Done</button>
@@ -931,7 +819,7 @@
                 "Entertainment", "Health", "Education", "Rent", "Other"
             ];
             
-            // New: Currency Options
+            // Currency Options
             const CURRENCY_OPTIONS = [
                 { name: "Indian Rupee", symbol: "₹", code: "INR" },
                 { name: "US Dollar", symbol: "$", code: "USD" },
@@ -969,11 +857,11 @@
             const developerModal = document.getElementById('developer-modal');
             const devInfoButton = document.getElementById('dev-info-button');
 
-            // New: Settings Modal Elements
+            // Settings Modal Elements
             const settingsModal = document.getElementById('settings-modal');
             const settingsButton = document.getElementById('settings-button');
             const currencySelect = document.getElementById('currency-select');
-            const themeToggle = document.getElementById('theme-toggle');
+            // const themeToggle = document.getElementById('theme-toggle'); // Removed as per request
 
 
             // --- State Variables ---
@@ -982,14 +870,14 @@
             let sortConfig = JSON.parse(localStorage.getItem('sortConfig')) || { key: 'date', direction: 'desc' }; 
             let currentEditId = null;
 
-            // New: Current currency symbol, initialized from local storage or default
+            // Current currency symbol, initialized from local storage or default
             let currentCurrencySymbol = localStorage.getItem('selectedCurrencySymbol') || '₹';
             document.documentElement.style.setProperty('--current-currency-symbol', `'${currentCurrencySymbol}'`); // Update CSS variable
 
 
             // --- Helper Functions ---
             const stripEmojis = (str) => {
-                return str.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{25AA}-\u{25FE}\u{FE0F}]/gu, '').trim();
+                return str.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{25AA}-\u{25FE}\u{FE0F}]/gu, '').trim();
             };
 
             const toLocalDateInput = (dateString) => {
@@ -1045,34 +933,9 @@
                 }
             };
 
-            // NEW: Theme and Currency functions
-            const applyTheme = (themeName) => {
-                const body = document.body;
-                if (themeName === 'light') {
-                    body.classList.add('light-mode');
-                    body.dataset.theme = 'light';
-                    themeToggle.checked = true; // Ensure toggle is checked for light mode
-                } else {
-                    body.classList.remove('light-mode');
-                    body.dataset.theme = 'dark';
-                    themeToggle.checked = false; // Ensure toggle is unchecked for dark mode
-                }
-                localStorage.setItem('theme', themeName);
-            };
-
-            const initializeTheme = () => {
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme) {
-                    applyTheme(savedTheme);
-                } else {
-                    // Detect system preference and apply default accordingly
-                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                        applyTheme('light');
-                    } else {
-                        applyTheme('dark'); // Default to dark if no preference or system is dark
-                    }
-                }
-            };
+            // Removed theme related functions as light mode is removed
+            // const applyTheme = (themeName) => { ... }
+            // const initializeTheme = () => { ... }
 
             const populateCurrencyDropdown = () => {
                 currencySelect.innerHTML = ''; // Clear existing options
@@ -1143,7 +1006,10 @@
                         stripEmojis(cat).toLowerCase() === cleanedNewCatName.toLowerCase()
                     );
 
-                    if (categoryExists) {
+                    if (cleanedNewCatName === '') { // Add validation for empty category name
+                        isValid = false;
+                        errorMessage = 'Category name cannot be empty.';
+                    } else if (categoryExists) {
                         isValid = false;
                         errorMessage = 'Category already exists!';
                     }
@@ -1632,7 +1498,7 @@
 
                 if (!validateInput(newCatNameInput)) return; 
                 
-                categories.push(stripEmojis(newCategoryName)); 
+                categories.push(newCategoryName); // Use the newCategoryName directly, stripping is for display/comparison
                 saveCategories();
                 closeModal(addCategoryModal);
                 showToast(`Category "${newCategoryName}" Added! 🎉`, 'success');
@@ -1660,15 +1526,17 @@
             confirmClearDataBtn.addEventListener('click', () => {
                 expenses = [];
                 categories = [...DEFAULT_CATEGORIES]; 
-                localStorage.clear(); // Clears all local storage including user name, theme, currency etc.
+                // Don't clear all local storage here, just expense and categories
+                localStorage.removeItem('expenses');
+                localStorage.removeItem('categories');
+                localStorage.removeItem('userName'); // Also reset user name on clear data for full fresh start
 
-                // Re-initialize specific preferences
+                // Reset specific preferences
                 sortConfig = { key: 'date', direction: 'desc' };
                 localStorage.setItem('sortConfig', JSON.stringify(sortConfig));
                 
-                persistExpensesToLocalStorage(); 
-                saveCategories();
-                updateWelcomeMessage(); 
+                populateCategoryDropdowns(); // Re-populate dropdowns with default categories
+                updateWelcomeMessage(); // Prompt for name again
                 
                 categoryFilter.value = 'all';
                 startDateFilter.value = '';
@@ -1776,10 +1644,14 @@
                     dateRange = `To ${endDate.toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric', timeZone:'UTC'})}`;
                 } else {
                      if (expensesToReport.length > 0) {
-                        const firstDate = new Date(expensesToReport[0].date + 'T00:00:00Z');
-                        const lastDate = new Date(expensesToReport[expensesToReport.length - 1].date + 'T00:00:00Z');
-                        if (firstDate.getUTCMonth() === lastDate.getUTCMonth() && firstDate.getUTCFullYear() === lastDate.getUTCFullYear()) {
-                            dateRange = `${firstDate.toLocaleDateString('en-US', {month:'long', year:'numeric', timeZone:'UTC'})}`;
+                        // Check if all expenses in report are from the same month/year
+                        const uniqueMonthsYears = new Set(expensesToReport.map(exp => {
+                            const d = new Date(exp.date + 'T00:00:00Z');
+                            return `${d.getUTCMonth()}-${d.getUTCFullYear()}`;
+                        }));
+                        if (uniqueMonthsYears.size === 1) {
+                            const firstExpDate = new Date(expensesToReport[0].date + 'T00:00:00Z');
+                            dateRange = `${firstExpDate.toLocaleDateString('en-US', {month:'long', year:'numeric', timeZone:'UTC'})}`;
                             currentMonthYear = dateRange; 
                         }
                     }
@@ -1880,22 +1752,25 @@
                 showModal(developerModal);
             });
 
-            // NEW: Event listener for Settings button
+            // Event listener for Settings button
             settingsButton.addEventListener('click', () => {
                 showModal(settingsModal);
             });
 
-            // NEW: Event listener for Theme Toggle
-            themeToggle.addEventListener('change', () => {
-                applyTheme(themeToggle.checked ? 'light' : 'dark');
-            });
+            // Removed Event listener for Theme Toggle as per request
+            // themeToggle.addEventListener('change', () => { ... });
 
-            // NEW: Event listener for Currency Select
+            // Event listener for Currency Select
             currencySelect.addEventListener('change', handleCurrencyChange);
 
 
             const initializeApp = () => {
-                initializeTheme(); // Apply theme first
+                // Enforce dark mode: Remove any potential light-mode class if it somehow persisted
+                // and ensure we only use the dark-themed CSS variables.
+                document.body.classList.remove('light-mode'); 
+                document.body.dataset.theme = 'dark'; // Explicitly set theme data attribute
+                localStorage.setItem('theme', 'dark'); // Store preference, even if it's the only one
+
                 updateWelcomeMessage(); 
                 populateCategoryDropdowns();
                 populateCurrencyDropdown(); // Populate currency dropdown and set initial value
