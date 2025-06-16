@@ -25,28 +25,31 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
         
         :root {
-            --primary-color: #8e44ad; /* Deep Purple */
-            --secondary-color: #3498db; /* Bright Blue */
-            --accent-color: #f1c40f; /* Vibrant Yellow */
+            /* Revised Color Palette */
+            --primary-color: #9B59B6; /* Amethyst - New Purple */
+            --secondary-color: #4BC0D9; /* Cyan-like Blue - New Accent Blue */
+            --accent-color: #FFE66D; /* Soft Yellow/Gold - New Vibrant Accent */
             --danger-color: #e74c3c; /* Red */
             --success-color: #2ecc71; /* Green */
-            --info-color: #3498db;   /* Blue */
-            --white-color: #fff;
+            --info-color: #6CCFEA;   /* Lighter Blue */
+            --white-color: #F5F5F5; /* Off-white for softer look */
             --text-color: #ecf0f1; /* Light gray text */
-            --soft-dark-bg: rgba(0, 0, 0, 0.35); /* Slightly darker base for more contrast */
-            --modal-bg: rgba(44, 62, 80, 0.98); /* Near-opaque dark blue for modals */
-            --border-alpha: rgba(255, 255, 255, 0.2); /* Slightly more opaque for borders */
-            --input-border-alpha: rgba(255, 255, 255, 0.35); /* More opaque for inputs */
-            --shadow-light: rgba(0, 0, 0, 0.6); /* Stronger shadow for depth */
-            --shadow-button: rgba(0,0,0,0.4);
-            --bg-glass-active: rgba(0,0,0,0.55); /* More distinct hover/focus background for glass elements */
+
+            /* Glassmorphism & Shadow Enhancements */
+            --soft-dark-bg: rgba(0, 0, 0, 0.45); /* Slightly more opaque base for glass elements */
+            --modal-bg: rgba(44, 62, 80, 0.95); /* Near-opaque dark blue for modals, subtle backdrop bleed */
+            --border-alpha: rgba(255, 255, 255, 0.25); /* Slightly more opaque for borders */
+            --input-border-alpha: rgba(255, 255, 255, 0.4); /* More opaque for inputs */
+            --shadow-light: rgba(0, 0, 0, 0.8); /* Stronger, deeper shadow for depth */
+            --shadow-button: rgba(0,0,0,0.5); /* Stronger button shadow */
+            --bg-glass-active: rgba(0,0,0,0.6); /* More distinct hover/focus background for glass elements */
         }
 
         /* Keyframe Animations */
         @keyframes gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOutShrink { from { opacity: 1; transform: scale(1); max-height: 200px; padding-top: 12px; padding-bottom: 12px; margin: auto;} to { opacity: 0; transform: scale(0.9); max-height: 0; padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0;} }
-        @keyframes flash { 0% { color: var(--accent-color); text-shadow: 0 0 15px var(--accent-color); transform: scale(1.05); } 100% { color: var(--accent-color); text-shadow: none; transform: scale(1); } }
+        @keyframes flash { 0% { color: var(--accent-color); text-shadow: 0 0 20px var(--accent-color), 0 0 40px var(--accent-color); transform: scale(1.08); } 100% { color: var(--accent-color); text-shadow: none; transform: scale(1); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 80% { transform: scale(1.02); opacity: 1; } 100% { transform: scale(1); } }
         /* New Toast Animations */
@@ -61,7 +64,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(-45deg, #2c3e50, #34495e, #23a6d5, #23d5ab);
+            background: linear-gradient(-45deg, #2c3e50, #34495e, #23a6d5, #23d5ab); /* Maintain vibrant gradient background */
             background-size: 400% 400%; animation: gradient-animation 15s ease infinite;
             color: var(--text-color); min-height: 100vh; padding: 20px;
             display: flex; align-items: center; justify-content: center;
@@ -70,12 +73,14 @@
 
         .container {
             width: 100%; max-width: 950px; padding: 40px; 
-            background: var(--soft-dark-bg); border-radius: 20px;
-            box-shadow: 0 12px 35px 0 var(--shadow-light); 
-            backdrop-filter: blur(18px); /* Increased blur */
-            -webkit-backdrop-filter: blur(18px);
+            background: var(--soft-dark-bg); 
+            border-radius: 20px;
+            /* Enhanced Glassmorphism & Shadow */
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(255,255,255,0.1); 
+            backdrop-filter: blur(25px); /* Increased blur for more pronounced glass effect */
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--border-alpha);
-            animation: slideInUp 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smoother and slightly slower */
+            animation: slideInUp 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
             margin: auto;
             position: relative;
         }
@@ -83,20 +88,21 @@
         /* Headings */
         h1 {
             font-size: 2.8rem; text-align: center; margin-bottom: 10px; font-weight: 700;
+            /* Vibrant Gradient for Title */
             background: linear-gradient(45deg, var(--white-color), var(--accent-color));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.4); 
+            text-shadow: 0 5px 12px rgba(0,0,0,0.5); /* Stronger text shadow */
             transition: all 0.3s ease;
-            letter-spacing: 1px; /* Added letter spacing */
+            letter-spacing: 1px; 
         }
-        h1:hover { transform: translateY(-2px); text-shadow: 0 6px 15px rgba(0,0,0,0.5); } /* Subtle hover animation */
+        h1:hover { transform: translateY(-3px) scale(1.01); text-shadow: 0 8px 20px rgba(0,0,0,0.6); } /* More prominent hover animation */
 
 
         #welcome-message {
             font-size: 1.1rem;
             text-align: center;
             margin-bottom: 25px; 
-            color: rgba(255, 255, 255, 0.85); /* Slightly brighter */
+            color: rgba(255, 255, 255, 0.9); /* Brighter for emphasis */
             font-weight: 400;
         }
         
@@ -109,12 +115,15 @@
             transition: all 0.3s ease;
             display: flex; align-items: center; justify-content: center; gap: 12px; 
             letter-spacing: 0.5px;
+            /* Subtle transform for heading 2 for interactive feel */
+            transform: scale(1);
         }
         h2 i { color: var(--accent-color); font-size: 1.7rem; }
+        h2:hover { transform: translateY(-2px); color: var(--white-color); text-shadow: 0 2px 8px rgba(255,255,255,0.1); }
 
         /* Total Expenses Section */
         .total-expenses { text-align: center; margin-bottom: 30px; }
-        .total-expenses h3 { font-weight: 400; font-size: 1rem; color: rgba(255, 255, 255, 0.7); } 
+        .total-expenses h3 { font-weight: 400; font-size: 1rem; color: rgba(255, 255, 255, 0.8); } 
         .total-expenses #total-amount { font-size: 3.5rem; font-weight: 700; color: var(--accent-color); transition: all 0.3s ease; }
         .total-expenses #total-amount.flash-update { animation: flash 0.7s ease-out; }
 
@@ -122,14 +131,14 @@
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
         .form-control.full-width { grid-column: 1 / -1; }
         .form-control { display: flex; flex-direction: column; position: relative; }
-        label { margin-bottom: 10px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.9; } 
+        label { margin-bottom: 10px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.95; } 
         
         input[type="text"], input[type="number"], input[type="date"], select {
             padding: 16px; border: 1px solid var(--input-border-alpha); border-radius: 10px; 
-            font-size: 17px; background: rgba(0, 0, 0, 0.28); /* Slightly darker input background */
+            font-size: 17px; background: rgba(0, 0, 0, 0.35); /* More translucent input background */
             color: var(--white-color);
             transition: all 0.3s ease; font-family: 'Poppins', sans-serif;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); 
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.25); /* Subtle inner shadow */
             -webkit-appearance: none; 
             -moz-appearance: none;
             appearance: none;
@@ -145,32 +154,33 @@
         }
         /* Style for options within the select dropdown */
         select option {
-            background-color: #2c3e50; 
+            background-color: #2c3e50; /* Darker background for option text */
             color: var(--white-color);
             padding: 10px; 
         }
 
-        input::placeholder { color: rgba(255, 255, 255, 0.7); } /* Brighter placeholder */
+        input::placeholder { color: rgba(255, 255, 255, 0.8); } /* Brighter placeholder */
         input:focus, select:focus {
             outline: none; background: var(--bg-glass-active); 
             border-color: var(--primary-color);
-            box-shadow: 0 0 15px rgba(142, 68, 173, 0.7), inset 0 2px 8px rgba(0,0,0,0.3); /* Enhanced focus shadow */
-            transform: scale(1.005); /* Subtle grow on focus */
+            /* Enhanced focus shadow for better feedback */
+            box-shadow: 0 0 20px rgba(155, 89, 182, 0.8), inset 0 2px 10px rgba(0,0,0,0.4); 
+            transform: scale(1.005); 
         }
-        input.invalid, select.invalid { border-color: var(--danger-color); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6), inset 0 2px 8px rgba(0,0,0,0.3); } 
+        input.invalid, select.invalid { border-color: var(--danger-color); box-shadow: 0 0 15px rgba(231, 76, 60, 0.7), inset 0 2px 8px rgba(0,0,0,0.4); } 
         
         /* Adjusted positioning for error message */
         .form-control .error-message { 
-            position: relative; /* Changed to relative */
+            position: relative; 
             margin-top: 5px; 
             font-size: 0.78rem; 
             color: var(--danger-color);
-            height: 1.1rem; /* Reserve space to prevent layout shifts */
+            height: 1.1rem; 
             opacity: 0;
-            transition: opacity 0.3s ease; /* Smooth transition */
-            overflow: hidden; /* Hide overflow text */
-            white-space: nowrap; /* Prevent wrapping */
-            text-overflow: ellipsis; /* Add ellipsis if text is too long */
+            transition: opacity 0.3s ease; 
+            overflow: hidden; 
+            white-space: nowrap; 
+            text-overflow: ellipsis; 
         }
         .form-control input.invalid + .error-message, 
         .form-control select.invalid + .error-message { 
@@ -185,19 +195,19 @@
             letter-spacing: 0.8px; white-space: nowrap;
             display: inline-flex; align-items: center; justify-content: center; 
             line-height: 1; 
-            box-shadow: 0 6px 20px var(--shadow-button); /* Unified shadow variable */
+            box-shadow: 0 8px 25px var(--shadow-button); /* Stronger initial shadow */
         }
-        .btn:hover { transform: translateY(-4px); box-shadow: 0 10px 30px var(--shadow-light); } /* More pronounced hover lift */
-        .btn:active { transform: translateY(-1px); box-shadow: inset 0 2px 8px rgba(0,0,0,0.4); } 
+        .btn:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 14px 40px var(--shadow-light); } /* More dramatic hover lift and shadow */
+        .btn:active { transform: translateY(-1px) scale(0.98); box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 3px 10px var(--shadow-button); } 
 
         .btn-primary { background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); color: var(--white-color); } 
-        .btn-primary:hover { background: linear-gradient(45deg, #a650cf, #48a6ea); } /* Slightly adjusted gradient on hover */
+        .btn-primary:hover { background: linear-gradient(45deg, #af6ace, #52caef); } /* Slightly adjusted gradient on hover */
         .btn-danger { background-color: var(--danger-color); color: var(--white-color); }
         .btn-danger:hover { background-color: #c0392b; }
         .btn-success { background-color: var(--success-color); color: var(--white-color); }
         .btn-success:hover { background-color: #27ae60; }
         .btn-info { background-color: var(--info-color); color: var(--white-color); }
-        .btn-info:hover { background-color: #2980b9; }
+        .btn-info:hover { background-color: #55c0e1; }
         
         .btn i { margin-right: 10px; font-size: 1rem; } 
 
@@ -208,7 +218,7 @@
             padding: 6px; color: var(--text-color); opacity: 0.8; 
             line-height: 1; 
         }
-        .action-btn:hover { opacity: 1; transform: scale(1.4); } /* More pronounced scale */
+        .action-btn:hover { opacity: 1; transform: scale(1.5); } /* More pronounced scale */
         .action-btn.edit-btn:hover { color: var(--secondary-color); }
         .action-btn.duplicate-btn:hover { color: var(--success-color); }
         .action-btn.delete-btn:hover { color: var(--danger-color); }
@@ -217,11 +227,11 @@
         
         /* Summary Section Styling */
         #expense-summary-section {
-            background: rgba(0,0,0,0.25); 
+            background: rgba(0,0,0,0.3); /* Lighter base for glass */
             padding: 30px; 
             border-radius: 18px; 
             border: 1px solid var(--border-alpha);
-            box-shadow: 0 5px 25px rgba(0,0,0,0.2); 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.35), inset 0 0 8px rgba(255,255,255,0.05); /* Deeper shadow + subtle inner glow */
             margin-bottom: 30px;
             margin-top: 40px; 
             animation: fadeIn 1s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
@@ -232,7 +242,7 @@
             font-weight: 700;
             margin-bottom: 25px;
             padding-bottom: 20px; 
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.15); /* Slightly clearer border */
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2); 
             gap: 15px; 
         }
         #expense-summary-section h3 i { font-size: 1.4rem; } 
@@ -240,7 +250,7 @@
             display: flex; 
             align-items: flex-start; 
             padding: 15px; 
-            background: rgba(0,0,0,0.15); /* Slightly darker */
+            background: rgba(0,0,0,0.2); /* Lighter translucent background for summary items */
             border-left: 5px solid var(--secondary-color); 
             margin-bottom: 12px; 
             border-radius: 10px; 
@@ -279,7 +289,7 @@
             grid-column: 1 / -1; 
             display: flex; flex-wrap: wrap; gap: 20px; 
             padding: 20px 0 10px; 
-            border-top: 1px dashed rgba(255, 255, 255, 0.1); 
+            border-top: 1px dashed rgba(255, 255, 255, 0.15); 
             margin-top: 20px; 
         }
         .expense-controls #date-filter-group .form-control { flex: 1 1 calc(50% - 10px); }
@@ -288,35 +298,40 @@
         /* Expense Table Styling */
         .expense-table-container { 
             max-height: 400px; overflow-y: auto; 
-            background: rgba(0,0,0,0.2); /* Slightly darker */
+            background: rgba(0,0,0,0.28); /* Slightly darker, more prominent glass table background */
             border-radius: 10px; 
             border: 1px solid var(--border-alpha);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1); 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.15); /* More visible inset shadow */
         }
         .expense-table-container::-webkit-scrollbar { width: 10px; } 
-        .expense-table-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.25); border-radius: 10px; }
-        .expense-table-container::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; border: 2px solid rgba(0,0,0,0.1); } 
+        .expense-table-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
+        .expense-table-container::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; border: 2px solid rgba(0,0,0,0.2); } 
         .expense-table { width: 100%; border-collapse: collapse; }
         .expense-table th, .expense-table td { padding: 14px 18px; text-align: left; vertical-align: middle; }
         .expense-table thead { position: sticky; top: 0; z-index: 10; }
-        .expense-table thead tr { background: rgba(0, 0, 0, 0.6); border-bottom: 1px solid var(--border-alpha); } /* Stronger background */
+        .expense-table thead tr { background: rgba(0, 0, 0, 0.7); border-bottom: 1px solid var(--border-alpha); } /* Stronger background */
         .expense-table th { 
             font-weight: 700; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.8px; 
-            color: rgba(255, 255, 255, 0.9); /* Brighter */
+            color: rgba(255, 255, 255, 0.95); /* Brighter */
             cursor: pointer; transition: all 0.25s ease;
             white-space: nowrap;
         }
         .expense-table th:hover { 
-            color: var(--accent-color); background: rgba(0,0,0,0.7); 
-            transform: translateY(-2px); /* Slight lift on hover */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Subtle shadow on hover */
+            color: var(--accent-color); 
+            background: rgba(0,0,0,0.75); 
+            transform: translateY(-3px); /* More pronounced lift on hover */
+            box-shadow: 0 3px 8px rgba(0,0,0,0.4); /* Subtle shadow on hover */
         } 
         .expense-table th.sorted { color: var(--secondary-color); }
         .expense-table th .sort-icon { margin-left: 8px; font-size: 0.8em; } 
 
-        .expense-table tbody tr { border-bottom: 1px dashed rgba(255, 255, 255, 0.1); transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease; } 
+        .expense-table tbody tr { 
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.15); 
+            transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease; 
+            background-color: rgba(0,0,0,0.2); /* Base row background */
+        } 
         .expense-table tbody tr:last-child { border-bottom: none; }
-        .expense-table tbody tr:hover { background-color: rgba(0,0,0,0.35); } /* Stronger hover */
+        .expense-table tbody tr:hover { background-color: rgba(0,0,0,0.45); } /* Stronger hover */
         .expense-table tr.item-exit { animation: fadeOutShrink 0.5s ease-in forwards; }
         .expense-table .col-amount { font-weight: 700; text-align: right; color: var(--white-color); }
         .expense-table .col-actions { width: 120px; text-align: center; }
@@ -325,20 +340,21 @@
         #toast-container { 
             position: fixed; top: 25px; right: 25px; z-index: 2000; 
             display: flex; flex-direction: column; gap: 12px; pointer-events: none;
-            overflow: hidden; /* Important for slide-in from right */
+            overflow: hidden; 
         } 
         .toast {
             background-color: var(--modal-bg); color: var(--white-color); 
             padding: 18px 30px; border-radius: 10px; 
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); 
-            opacity: 0; transform: translateX(100%); /* Start off-screen */
-            animation: slideInRight 0.4s ease-out forwards; /* Entry animation */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(12px); /* Increased toast blur */ 
+            opacity: 0; transform: translateX(100%); 
+            animation: slideInRight 0.4s ease-out forwards; 
             min-width: 280px; text-align: center;
             border: 1px solid var(--border-alpha);
             font-weight: 500;
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .toast.hide { animation: slideOutRight 0.4s ease-in forwards; } /* Exit animation */
+        .toast.hide { animation: slideOutRight 0.4s ease-in forwards; } 
         .toast i { font-size: 1.2em; }
         .toast.success { border-left: 6px solid var(--success-color); } 
         .toast.success i { color: var(--success-color); }
@@ -350,15 +366,16 @@
         /* Modal Styles */
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); /* Darker overlay */ 
-            backdrop-filter: blur(10px); /* Stronger blur */ z-index: 1000; 
+            background: rgba(0,0,0,0.9); /* Darker overlay */ 
+            backdrop-filter: blur(15px); /* Stronger blur */ z-index: 1000; 
             display: flex; align-items: center; justify-content: center; 
             opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0s linear 0.4s; 
         }
         .modal-overlay.active { opacity: 1; visibility: visible; transition: opacity 0.4s ease, visibility 0s linear 0s; }
         .modal-content { 
             background: var(--modal-bg); border-radius: 20px; 
-            box-shadow: 0 15px 45px 0 var(--shadow-light); border: 1px solid var(--border-alpha); 
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), inset 0 0 10px rgba(255,255,255,0.05); /* Deeper shadow with inner glow */ 
+            border: 1px solid var(--border-alpha); 
             padding: 45px; width: 90%; max-width: 550px; transform: scale(0.9); opacity: 0; 
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease; 
             animation: popIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
@@ -390,11 +407,11 @@
 
             opacity: 0; 
             transform: translateY(-100%); 
-            animation: slideUpHide 0.5s forwards; /* Default hidden animation */
+            animation: slideUpHide 0.5s forwards; 
         }
 
         #desktop-recommendation.show {
-            animation: slideDownShow 0.5s forwards; /* Show animation */
+            animation: slideDownShow 0.5s forwards; 
         }
 
         #desktop-recommendation .close-btn {
@@ -419,8 +436,12 @@
         /* General mobile base styles (max-width: 768px) */
         @media (max-width: 768px) {
             body { padding: 15px; }
-            .container { padding: 25px; max-width: unset; width: 100%; border-radius: 15px; }
+            .container { padding: 25px; max-width: unset; width: 100%; border-radius: 15px; 
+                         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); /* Slightly less blur for mobile */
+                         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 8px rgba(255,255,255,0.1);
+            }
             h1 { font-size: 2.2rem; margin-bottom: 8px; }
+            h1:hover { transform: translateY(-2px) scale(1); text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
             #welcome-message { font-size: 1rem; margin-bottom: 20px; }
             h2 { font-size: 1.6rem; margin: 35px 0 25px 0; padding-top: 25px; }
             h2 i { font-size: 1.5rem; gap: 8px;} 
@@ -444,13 +465,18 @@
                 border-radius: 8px; 
                 margin-top: 20px !important; 
                 margin-left: 8px !important;
+                box-shadow: 0 5px 15px var(--shadow-button); /* Less pronounced shadow on mobile */
             }
             .btn:first-child { margin-left: 0 !important;}
+            .btn:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 8px 20px var(--shadow-light); }
+
 
             .actions { flex-direction: column; align-items: stretch; gap: 15px; margin-top: 30px;}
             .actions .btn { width: 100%; }
 
-            #expense-summary-section { padding: 25px; border-radius: 15px; margin-top: 30px;}
+            #expense-summary-section { padding: 25px; border-radius: 15px; margin-top: 30px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3), inset 0 0 5px rgba(255,255,255,0.05); /* Reduced shadow for mobile */
+            }
             #expense-summary-section h3 { font-size: 1.4rem; margin-bottom: 20px; padding-bottom: 15px;}
             #expense-summary-section h3 i { font-size: 1.2rem;}
             #expense-summary-content p { font-size: 0.95rem; padding: 12px; gap: 10px; }
@@ -475,13 +501,14 @@
             .expense-table tbody, .expense-table tr { display: block; width: 100%; }
             .expense-table tr { 
                 margin-bottom: 12px; 
-                background: rgba(0,0,0,0.18); 
+                background: rgba(0,0,0,0.25); /* Slightly lighter glass background for rows on mobile */
                 border-radius: 10px; 
                 padding: 10px 15px; 
-                border: 1px solid rgba(255, 255, 255, 0.12); 
+                border: 1px solid rgba(255, 255, 255, 0.15); /* More prominent border for rows */
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* Small shadow for mobile rows */
             }
             .expense-table tbody tr:last-child { margin-bottom: 0;}
-            .expense-table tbody tr:hover { background-color: rgba(0,0,0,0.35); }
+            .expense-table tbody tr:hover { background-color: rgba(0,0,0,0.4); } /* Stronger hover */
             .expense-table tr.item-exit { animation: fadeOutShrink 0.5s ease-in forwards; } 
 
             .expense-table td {
@@ -489,7 +516,7 @@
                 justify-content: space-between; 
                 align-items: center;
                 padding: 8px 0; 
-                border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+                border-bottom: 1px dashed rgba(255, 255, 255, 0.15); /* More prominent row separation */
                 text-align: right; 
                 font-size: 0.95rem; 
             }
@@ -515,9 +542,11 @@
                 padding-bottom: 5px;
             }
             .expense-table td.col-actions::before { content: ""; flex-basis: 0; padding-right: 0;} 
-            .action-btn { font-size: 1.1rem; padding: 5px; } 
+            .action-btn { font-size: 1.2rem; padding: 6px; } /* Slightly larger for easier mobile tap */
 
-            .modal-content { padding: 30px; border-radius: 15px; max-width: 95%; }
+            .modal-content { padding: 30px; border-radius: 15px; max-width: 95%; 
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 8px rgba(255,255,255,0.05); /* Reduced modal shadow for mobile */
+            }
             .modal-content h2 { font-size: 1.8rem; margin-bottom: 20px; }
             .modal-actions { flex-direction: column-reverse; gap: 15px; margin-top: 25px; } 
             .modal-actions .btn { min-width: unset; width: 100%; }
@@ -527,42 +556,6 @@
 
             #desktop-recommendation { font-size: 0.85rem; padding: 10px 15px; }
             #desktop-recommendation .close-btn { font-size: 1rem; }
-        }
-
-        /* Smaller mobile devices (max-width: 480px) */
-        @media (max-width: 480px) {
-            body { padding: 10px; }
-            .container { padding: 20px; border-radius: 10px;}
-            h1 { font-size: 1.8rem; margin-bottom: 8px; }
-            #welcome-message { font-size: 0.85rem; margin-bottom: 18px; }
-            h2 { font-size: 1.4rem; margin: 30px 0 20px 0; padding-top: 20px;}
-            h2 i { font-size: 1.3rem;}
-            .total-expenses #total-amount { font-size: 2.4rem; }
-            .total-expenses h3 { font-size: 0.85rem;}
-
-            label { font-size: 0.8rem; margin-bottom: 6px; }
-            input[type="text"], input[type="number"], input[type="date"], select { padding: 12px; font-size: 15px; border-radius: 6px; }
-            .form-control .error-message { font-size: 0.7rem; height: 1rem; }
-            .btn { padding: 12px 18px; font-size: 15px; border-radius: 6px; }
-            .btn i { margin-right: 6px; font-size: 0.85rem; }
-
-            #expense-summary-section { padding: 20px; border-radius: 12px; }
-            #expense-summary-section h3 { font-size: 1.2rem; margin-bottom: 15px; padding-bottom: 10px;}
-            #expense-summary-section h3 i { font-size: 1.1rem;}
-            #expense-summary-content p { font-size: 0.85rem; padding: 10px; gap: 8px;}
-            #expense-summary-content p i { font-size: 1rem; }
-
-            .expense-table td { font-size: 0.9rem; padding: 7px 0; }
-            .expense-table td::before { font-size: 0.7rem; flex-basis: 35%;} 
-            .action-btn { font-size: 1rem; padding: 4px; }
-            
-            .modal-content { padding: 25px; border-radius: 12px; max-width: 98%; }
-            .modal-content h2 { font-size: 1.6rem; margin-bottom: 18px; }
-            .modal-actions { gap: 10px; margin-top: 20px; }
-            #toast-container { top: 10px; right: 10px;}
-
-            #desktop-recommendation { font-size: 0.8rem; padding: 8px 12px; }
-            #desktop-recommendation .close-btn { font-size: 0.9rem;}
         }
 
         /* Landscape Mode for Smaller Mobiles (adjust form layout for more horizontal space) */
@@ -629,7 +622,7 @@
                 <h3><i class="fas fa-chart-pie" aria-hidden="true"></i> Your Monthly Summary</h3>
                 <div id="expense-summary-content">
                     <p style="text-align: center; color: rgba(255,255,255,0.7); border: none; background: none;">
-                        <i class="fas fa-hand-holding-usd" style="margin-right: 8px;" aria-hidden="true"></i> Add some expenses to see a summary here!
+                        <i class="fas fa-hand-holding-usd" style="margin-right: 8px;" aria-hidden="true"></i> Add some expenses to see a summary here! 🚀
                     </p>
                 </div>
             </div>
@@ -748,9 +741,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- Constants ---
+            // Emojis removed from default categories
             const DEFAULT_CATEGORIES = [
-                "Food 🍔", "Transport 🚗", "Bills 💡", "Shopping 🛍️", 
-                "Entertainment 🎬", "Health 💊", "Education 📚", "Rent 🏠", "Other 🤷"
+                "Food", "Transport", "Bills", "Shopping", 
+                "Entertainment", "Health", "Education", "Rent", "Other"
             ];
 
             // --- DOM Elements ---
@@ -786,6 +780,13 @@
             let desktopRecommendationTimeout; // To store the timeout ID
 
             // --- Helper Functions ---
+
+            // New helper function to strip emojis
+            const stripEmojis = (str) => {
+                // Regular expression to match various Unicode emoji categories
+                return str.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{25AA}-\u{25FE}\u{FE0F}]/gu, '').trim();
+            };
+
             const toLocalDateInput = (dateString) => {
                 if (!dateString) return '';
                 const date = new Date(dateString + 'T00:00:00Z'); 
@@ -878,10 +879,10 @@
                     }
                 } 
                 else if (inputElement.id === 'new-category-name') {
-                    // Remove emojis before checking for duplicates
-                    const cleanedNewCatName = inputElement.value.trim().replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+                    // Remove emojis before checking for duplicates for consistency
+                    const cleanedNewCatName = stripEmojis(inputElement.value);
                     const categoryExists = categories.some(cat => 
-                        cat.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim().toLowerCase() === cleanedNewCatName.toLowerCase()
+                        stripEmojis(cat).toLowerCase() === cleanedNewCatName.toLowerCase()
                     );
 
                     if (categoryExists) {
@@ -966,19 +967,21 @@
                     if (index === 2) { 
                         const allOption = document.createElement('option');
                         allOption.value = 'all';
-                        allOption.textContent = 'All Categories';
+                        allOption.textContent = 'All Categories'; // No emoji here
                         dropdown.appendChild(allOption);
                     }
 
                     categories.slice().sort((a, b) => {
                         // Sort by text part of category name (ignoring emojis for sorting purposes)
-                        const cleanA = a.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
-                        const cleanB = b.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+                        const cleanA = stripEmojis(a);
+                        const cleanB = stripEmojis(b);
                         return cleanA.localeCompare(cleanB);
                     }).forEach(cat => {
                         const option = document.createElement('option');
-                        option.value = cat;
-                        option.textContent = cat;
+                        // Store the category with original emoji (if any) as value
+                        option.value = cat; 
+                        // Display the cleaned name without emoji
+                        option.textContent = stripEmojis(cat); 
                         dropdown.appendChild(option);
                     });
 
@@ -1005,7 +1008,7 @@
                 if (expenses.length === 0) {
                     summaryContentDiv.innerHTML = `
                         <p style="text-align: center; color: rgba(255,255,255,0.7); border: none; background: none;">
-                            <i class="fas fa-hand-holding-usd" style="margin-right: 8px;" aria-hidden="true"></i> Start by adding your first expense to see your financial summary here!
+                            <i class="fas fa-hand-holding-usd" style="margin-right: 8px;" aria-hidden="true"></i> Start by adding your first expense to see your financial summary here! 🚀
                         </p>
                     `;
                     return;
@@ -1024,7 +1027,9 @@
 
                 const calculateSpendingByCategory = (expenseList) => {
                     return expenseList.reduce((acc, exp) => {
-                        acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
+                        // Ensure category names are stripped of emojis for consistent grouping in summary
+                        const categoryName = stripEmojis(exp.category);
+                        acc[categoryName] = (acc[categoryName] || 0) + exp.amount;
                         return acc;
                     }, {});
                 };
@@ -1050,14 +1055,14 @@
 
                 if (totalCurrentMonthSpent > 0 && totalLastMonthSpent === 0) {
                      monthlyComparisonHtml = `
-                        <p><i class="fas fa-money-bill-wave" aria-hidden="true"></i> In ${currentMonthName}, you've spent <strong>${formatCurrency(totalCurrentMonthSpent)}</strong>. Great start to your tracking journey!</p>
+                        <p><i class="fas fa-money-bill-wave" aria-hidden="true"></i> In ${currentMonthName}, you've spent <strong>${formatCurrency(totalCurrentMonthSpent)}</strong>. Great start to your tracking journey! 💰</p>
                     `;
                 } else if (totalCurrentMonthSpent > totalLastMonthSpent) {
                     const diff = totalCurrentMonthSpent - totalLastMonthSpent;
                     const percentage = (diff / (totalLastMonthSpent || 1)) * 100; 
                     monthlyComparisonHtml = `
                         <p class="bad-news">
-                            <i class="fas fa-arrow-trend-up" aria-hidden="true"></i> Your spending in ${currentMonthName} is <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% higher)</strong> than ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Let's review where that extra cash went!
+                            <i class="fas fa-arrow-trend-up" aria-hidden="true"></i> Your spending in ${currentMonthName} is <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% higher)</strong> than ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Let's review where that extra cash went! 💸
                         </p>
                     `;
                 } else if (totalCurrentMonthSpent < totalLastMonthSpent && totalCurrentMonthSpent >= 0) { 
@@ -1065,16 +1070,16 @@
                     const percentage = (diff / totalLastMonthSpent) * 100;
                     monthlyComparisonHtml = `
                         <p class="good-news">
-                            <i class="fas fa-arrow-trend-down" aria-hidden="true"></i> Excellent! You spent <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% less)</strong> in ${currentMonthName} compared to ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Keep up the smart saving!
+                            <i class="fas fa-arrow-trend-down" aria-hidden="true"></i> Excellent! You spent <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% less)</strong> in ${currentMonthName} compared to ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Keep up the smart saving! ✨
                         </p>
                     `;
                 } else if (totalCurrentMonthSpent === totalLastMonthSpent && totalCurrentMonthSpent > 0) {
                     monthlyComparisonHtml = `
-                        <p><i class="fas fa-balance-scale-left" aria-hidden="true"></i> Your spending in ${currentMonthName} is consistent with ${lastMonthName}, totaling around <strong>${formatCurrency(totalCurrentMonthSpent)}</strong>. Steady financial management!</p>
+                        <p><i class="fas fa-balance-scale-left" aria-hidden="true"></i> Your spending in ${currentMonthName} is consistent with ${lastMonthName}, totaling around <strong>${formatCurrency(totalCurrentMonthSpent)}</strong>. Steady financial management! 👍</p>
                     `;
                 } else { 
                      monthlyComparisonHtml = `
-                        <p><i class="fas fa-calendar-alt" aria-hidden="true"></i> No spending recorded for ${currentMonthName} or ${lastMonthName}. Let's get tracking your next expenses!</p>
+                        <p><i class="fas fa-calendar-alt" aria-hidden="true"></i> No spending recorded for ${currentMonthName} or ${lastMonthName}. Let's get tracking your next expenses! 🧐</p>
                      `;
                 }
                 summaryContentDiv.innerHTML += monthlyComparisonHtml;
@@ -1087,11 +1092,12 @@
                     if (sortedCategories.length > 0) {
                         const topCategoriesText = sortedCategories.map(([category, amount]) => {
                             const percentOfTotal = (amount / totalCurrentMonthSpent) * 100;
-                            return `<strong>${category}</strong> (${formatCurrency(amount)}, ${percentOfTotal.toFixed(1)}% of total)`;
+                            // Display the stripped category name in summary
+                            return `<strong>${stripEmojis(category)}</strong> (${formatCurrency(amount)}, ${percentOfTotal.toFixed(1)}% of total)`;
                         }).join(', ');
                         summaryContentDiv.innerHTML += `
                             <p><i class="fas fa-boxes" aria-hidden="true"></i> Your top ${sortedCategories.length} spending areas this month: ${topCategoriesText}.
-                            Knowing these can help you identify where to focus for potential savings!</p>
+                            Knowing these can help you identify where to focus for potential savings! 💡</p>
                         `;
                     }
                     
@@ -1107,10 +1113,10 @@
                             if (lastMonthAmount > 0) { 
                                 const percentageChange = ((currentMonthAmount - lastMonthAmount) / lastMonthAmount) * 100;
                                 if (percentageChange > changeThreshold) {
-                                    categoryChanges.push(`<strong>${category}</strong> (up ${percentageChange.toFixed(0)}%)`);
+                                    categoryChanges.push(`<strong>${stripEmojis(category)}</strong> (up ${percentageChange.toFixed(0)}%)`);
                                 }
                             } else { 
-                                categoryChanges.push(`<strong>${category}</strong> (new significant spending)`);
+                                categoryChanges.push(`<strong>${stripEmojis(category)}</strong> (new significant spending)`);
                             }
                         }
                     }
@@ -1119,7 +1125,7 @@
                         summaryContentDiv.innerHTML += `
                             <p class="bad-news">
                                 <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> You might want to check your spending in: ${categoryChanges.join(', ')}. 
-                                These areas saw significant changes recently.
+                                These areas saw significant changes recently. 😬
                             </p>
                         `;
                     }
@@ -1127,11 +1133,11 @@
                     const largestExpense = currentMonthExpenses.reduce((max, exp) => (exp.amount > (max ? max.amount : 0)) ? exp : max, null);
                     if (largestExpense) {
                         summaryContentDiv.innerHTML += `
-                            <p><i class="fas fa-hand-holding-usd" aria-hidden="true"></i> Your single largest expense this month was <strong>${formatCurrency(largestExpense.amount)}</strong> for "${largestExpense.description}" in "${largestExpense.category}". Big spending calls for careful consideration!</p>
+                            <p><i class="fas fa-hand-holding-usd" aria-hidden="true"></i> Your single largest expense this month was <strong>${formatCurrency(largestExpense.amount)}</strong> for "${largestExpense.description}" in "${stripEmojis(largestExpense.category)}". Big spending calls for careful consideration! 💸</p>
                         `;
                     }
                 } else {
-                     summaryContentDiv.innerHTML += `<p><i class="fas fa-smile-beam" aria-hidden="true"></i> No spending recorded for ${currentMonthName} yet. A fresh start for tracking your finances!</p>`;
+                     summaryContentDiv.innerHTML += `<p><i class="fas fa-smile-beam" aria-hidden="true"></i> No spending recorded for ${currentMonthName} yet. A fresh start for tracking your finances! 🆕</p>`;
                 }
 
                 summaryContentDiv.innerHTML += `
@@ -1149,7 +1155,7 @@
                 if (expensesToRender.length === 0) {
                     const message = expenses.length === 0 
                         ? 'No expenses added yet. Start by using the form above! 📝' 
-                        : 'No expenses match your current filters and date range. 🧐';
+                        : 'No expenses match your current filters and date range. 🧐 Try adjusting your filters!';
                     expenseTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 25px 0; color: rgba(255,255,255,0.7);">${message}</td></tr>`;
                 } else {
                     expensesToRender.forEach((expense, index) => {
@@ -1162,7 +1168,7 @@
                         
                         tr.innerHTML = `
                             <td data-label="Date">${formattedDate}</td>
-                            <td data-label="Category">${expense.category}</td>
+                            <td data-label="Category">${stripEmojis(expense.category)}</td> <!-- Strip emoji for table display -->
                             <td data-label="Description">${expense.description}</td>
                             <td data-label="Amount" class="col-amount">${formatCurrency(expense.amount)}</td>
                             <td data-label="Actions" class="col-actions">
@@ -1226,18 +1232,16 @@
             };
 
             const checkScreenSizeForRecommendation = () => {
-                if (window.innerWidth < 768) { 
-                    const hasExpenses = expenses.length > 0;
-                    const userNameExists = localStorage.getItem('userName') !== null;
+                // Only show if user has interacted (expenses or username) OR if explicitly triggered (not default load behavior)
+                // For a truly best-in-class UX, we shouldn't pester user. We will show if not already dismissed via LS.
+                const dismissedRecommendation = localStorage.getItem('dismissedDesktopRecommendation');
+                if (dismissedRecommendation === 'true') { // Check for 'true' as string
+                    hideDesktopRecommendation();
+                    return;
+                }
 
-                    // If user has expenses or a username, show it then auto-hide.
-                    // If no user data yet, it's a fresh load, we can hide it quickly or not show if they dismiss
-                    if (hasExpenses || userNameExists) {
-                        showDesktopRecommendation();
-                    } else {
-                        // If it's a completely fresh load on mobile, hide immediately unless manually triggered
-                        hideDesktopRecommendation();
-                    }
+                if (window.innerWidth < 768) { 
+                    showDesktopRecommendation();
                 } else {
                     hideDesktopRecommendation(); // Always hide on desktop
                 }
@@ -1257,7 +1261,7 @@
                 const newExpense = {
                     id: Date.now(), 
                     date: toLocalDateInput(document.getElementById('expense-date').value),
-                    category: document.getElementById('expense-category').value,
+                    category: document.getElementById('expense-category').value, // This stores the category name, possibly with emoji
                     description: document.getElementById('expense-description').value.trim(),
                     amount: parseFloat(document.getElementById('expense-amount').value),
                 };
@@ -1325,7 +1329,7 @@
                     expenses[expenseIndex] = {
                         id: currentEditId,
                         date: toLocalDateInput(document.getElementById('edit-date').value),
-                        category: document.getElementById('edit-category').value,
+                        category: document.getElementById('edit-category').value, // Category may retain emoji if chosen
                         description: document.getElementById('edit-description').value.trim(),
                         amount: parseFloat(document.getElementById('edit-amount').value),
                     };
@@ -1349,7 +1353,8 @@
 
                 if (!validateInput(newCatNameInput)) return; 
                 
-                categories.push(newCategoryName);
+                // Store the new category with emoji stripped, as it was validated without emoji for duplicates
+                categories.push(stripEmojis(newCategoryName)); 
                 saveCategories();
                 closeModal(addCategoryModal);
                 showToast(`Category "${newCategoryName}" Added! 🎉`, 'success');
@@ -1363,7 +1368,7 @@
             });
 
             clearDataBtn.addEventListener('click', () => {
-                const isCategoriesDefault = JSON.stringify([...categories].sort()) === JSON.stringify([...DEFAULT_CATEGORIES].sort());
+                const isCategoriesDefault = JSON.stringify([...categories].map(c => stripEmojis(c)).sort()) === JSON.stringify([...DEFAULT_CATEGORIES].sort());
                 const hasExpenses = expenses.length > 0;
 
                 if (!hasExpenses && isCategoriesDefault) {
@@ -1375,15 +1380,22 @@
 
             confirmClearDataBtn.addEventListener('click', () => {
                 expenses = [];
-                categories = [...DEFAULT_CATEGORIES];
+                categories = [...DEFAULT_CATEGORIES]; // Resets categories to non-emoji defaults
                 localStorage.clear();
 
+                // Re-save initial configurations for a fresh start without persistent filters/sort
                 sortConfig = { key: 'date', direction: 'desc' };
                 localStorage.setItem('sortConfig', JSON.stringify(sortConfig));
+                localStorage.setItem('dismissedDesktopRecommendation', 'false'); // Reset this too
                 
-                saveExpenses(); 
-                saveCategories(); 
+                saveExpenses(); // This will also re-render/update totals/summary
+                saveCategories(); // This will populate dropdowns with default categories
                 updateWelcomeMessage(); 
+                
+                // Clear filters
+                categoryFilter.value = 'all';
+                startDateFilter.value = '';
+                endDateFilter.value = '';
 
                 closeModal(clearConfirmModal);
                 showToast('All expense data cleared! ✅', 'success');
@@ -1427,7 +1439,8 @@
                 let filtered = [...expenses];
 
                 if (filterValue !== 'all') {
-                    filtered = filtered.filter(exp => exp.category === filterValue);
+                    // Filter based on stripped value for consistency, matching dropdown's value
+                    filtered = filtered.filter(exp => stripEmojis(exp.category) === stripEmojis(filterValue));
                 }
                 if (start && !isNaN(start.getTime())) { 
                     filtered = filtered.filter(exp => new Date(exp.date + 'T00:00:00Z') >= start);
@@ -1448,8 +1461,8 @@
                         valB = b.amount;
                     } else {
                         // For string sorting, strip emojis to ensure alphabetical order based on text
-                        valA = String(a[sortConfig.key]).replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim().toLowerCase(); 
-                        valB = String(b[sortConfig.key]).replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim().toLowerCase();
+                        valA = stripEmojis(String(a[sortConfig.key])).toLowerCase(); 
+                        valB = stripEmojis(String(b[sortConfig.key])).toLowerCase();
                     }
 
                     if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -1497,7 +1510,8 @@
                 }
 
                 const spendingByCategoryReport = expensesToReport.reduce((acc, exp) => {
-                    acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
+                    const categoryName = stripEmojis(exp.category); // Strip emojis for the report summary
+                    acc[categoryName] = (acc[categoryName] || 0) + exp.amount;
                     return acc;
                 }, {});
 
@@ -1540,7 +1554,7 @@
                     const paddedDescription = expense.description.length > 25 ? expense.description.substring(0, 22) + '...' : expense.description;
 
                     body += `${formattedDate.padEnd(11)}`; 
-                    body += `${expense.category.padEnd(16)}`; 
+                    body += `${stripEmojis(expense.category).padEnd(16)}`; // Strip emojis for consistent reporting layout
                     body += `${paddedDescription.padEnd(29)}`; 
                     body += `${formatCurrency(expense.amount).padStart(10)}\n`; 
                 });
@@ -1549,7 +1563,7 @@
                 body += `===========================================================\n\n`;
 
                 let filtersApplied = [];
-                if (categoryFilter.value !== 'all') { filtersApplied.push(`Category: ${categoryFilter.value}`); }
+                if (categoryFilter.value !== 'all') { filtersApplied.push(`Category: ${stripEmojis(categoryFilter.value)}`); } // Strip emoji from filter name for report
                 if (startDateFilter.value) { filtersApplied.push(`From Date: ${toLocalDateInput(startDateFilter.value)}`); }
                 if (endDateFilter.value) { filtersApplied.push(`To Date: ${toLocalDateInput(endDateFilter.value)}`); }
 
@@ -1585,7 +1599,10 @@
                 });
             });
 
-            desktopRecommendationCloseBtn.addEventListener('click', hideDesktopRecommendation);
+            desktopRecommendationCloseBtn.addEventListener('click', () => {
+                hideDesktopRecommendation();
+                localStorage.setItem('dismissedDesktopRecommendation', 'true'); // Store user's choice
+            });
 
 
             // --- Initialization ---
