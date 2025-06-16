@@ -21,6 +21,7 @@
             - Usability: Better validation message positioning.
             
             NOTE: All responsive design media queries have been removed to force desktop rendering on all devices.
+            Flash animation for total amount has been removed for a smoother experience.
         */
 
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
@@ -50,7 +51,7 @@
         @keyframes gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOutShrink { from { opacity: 1; transform: scale(1); max-height: 200px; padding-top: 12px; padding-bottom: 12px; margin: auto;} to { opacity: 0; transform: scale(0.9); max-height: 0; padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0;} }
-        @keyframes flash { 0% { color: var(--accent-color); text-shadow: 0 0 20px var(--accent-color), 0 0 40px var(--accent-color); transform: scale(1.08); } 100% { color: var(--accent-color); text-shadow: none; transform: scale(1); } }
+        /* REMOVED: @keyframes flash to disable the total amount animation */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 80% { transform: scale(1.02); opacity: 1; } 100% { transform: scale(1); } }
         /* Toast Animations */
@@ -122,8 +123,11 @@
         /* Total Expenses Section */
         .total-expenses { text-align: center; margin-bottom: 30px; }
         .total-expenses h3 { font-weight: 400; font-size: 1rem; color: rgba(255, 255, 255, 0.8); } 
-        .total-expenses #total-amount { font-size: 3.5rem; font-weight: 700; color: var(--accent-color); transition: all 0.3s ease; }
-        .total-expenses #total-amount.flash-update { animation: flash 0.7s ease-out; }
+        /* Removed .total-expenses #total-amount.flash-update animation rule */
+        .total-expenses #total-amount { 
+            font-size: 3.5rem; font-weight: 700; color: var(--accent-color); 
+            transition: all 0.3s ease; /* Keep original transition for smoother amount update */
+        }
 
         /* Form Layout */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
@@ -606,10 +610,11 @@
                 return `₹${parseFloat(amount).toFixed(2)}`;
             };
 
-            const flashUpdate = (element) => {
-                element.classList.add('flash-update');
-                setTimeout(() => element.classList.remove('flash-update'), 700);
-            };
+            // REMOVED: flashUpdate function as it caused the "lighting" effect
+            // const flashUpdate = (element) => {
+            //     element.classList.add('flash-update');
+            //     setTimeout(() => element.classList.remove('flash-update'), 700);
+            // };
 
             const showToast = (message, type = 'info', duration = 3000) => {
                 const toast = document.createElement('div');
@@ -853,151 +858,155 @@
             const updateTotal = () => {
                 const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
                 totalAmountDisplay.textContent = formatCurrency(total);
-                flashUpdate(totalAmountDisplay);
+                // REMOVED: flashUpdate(totalAmountDisplay); to prevent the "lighting" effect
             };
 
             const updateExpenseSummary = () => {
                 const summaryContentDiv = document.getElementById('expense-summary-content');
-                summaryContentDiv.innerHTML = ''; // Clear for update
+                // Build content into a temporary string first
+                let newSummaryHtml = '';
 
                 if (expenses.length === 0) {
-                    summaryContentDiv.innerHTML = `
+                    newSummaryHtml = `
                         <p style="text-align: center; color: rgba(255,255,255,0.7); border: none; background: none;">
                             <i class="fas fa-hand-holding-usd" style="margin-right: 8px;" aria-hidden="true"></i> Start by adding your first expense to see your financial summary here! 🚀
                         </p>
                     `;
-                    return;
-                }
+                } else {
+                    const now = new Date();
+                    const currentYear = now.getFullYear();
+                    const currentMonth = now.getMonth();
 
-                const now = new Date();
-                const currentYear = now.getFullYear();
-                const currentMonth = now.getMonth();
+                    const getExpensesForMonth = (year, month) => {
+                        return expenses.filter(exp => {
+                            const expDate = new Date(exp.date + 'T00:00:00Z'); 
+                            return expDate.getUTCFullYear() === year && expDate.getUTCMonth() === month;
+                        });
+                    };
 
-                const getExpensesForMonth = (year, month) => {
-                    return expenses.filter(exp => {
-                        const expDate = new Date(exp.date + 'T00:00:00Z'); 
-                        return expDate.getUTCFullYear() === year && expDate.getUTCMonth() === month;
-                    });
-                };
+                    const calculateSpendingByCategory = (expenseList) => {
+                        return expenseList.reduce((acc, exp) => {
+                            const categoryName = stripEmojis(exp.category);
+                            acc[categoryName] = (acc[categoryName] || 0) + exp.amount;
+                            return acc;
+                        }, {});
+                    };
 
-                const calculateSpendingByCategory = (expenseList) => {
-                    return expenseList.reduce((acc, exp) => {
-                        const categoryName = stripEmojis(exp.category);
-                        acc[categoryName] = (acc[categoryName] || 0) + exp.amount;
-                        return acc;
-                    }, {});
-                };
+                    const currentMonthExpenses = getExpensesForMonth(currentYear, currentMonth);
+                    const totalCurrentMonthSpent = currentMonthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+                    const currentMonthSpendingByCategory = calculateSpendingByCategory(currentMonthExpenses);
 
-                const currentMonthExpenses = getExpensesForMonth(currentYear, currentMonth);
-                const totalCurrentMonthSpent = currentMonthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-                const currentMonthSpendingByCategory = calculateSpendingByCategory(currentMonthExpenses);
+                    let lastMonth = currentMonth - 1;
+                    let lastYear = currentYear;
+                    if (lastMonth < 0) {
+                        lastMonth = 11; 
+                        lastYear--;
+                    }
+                    const lastMonthExpenses = getExpensesForMonth(lastYear, lastMonth);
+                    const totalLastMonthSpent = lastMonthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+                    const lastMonthSpendingByCategory = calculateSpendingByCategory(lastMonthExpenses);
 
-                let lastMonth = currentMonth - 1;
-                let lastYear = currentYear;
-                if (lastMonth < 0) {
-                    lastMonth = 11; 
-                    lastYear--;
-                }
-                const lastMonthExpenses = getExpensesForMonth(lastYear, lastMonth);
-                const totalLastMonthSpent = lastMonthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-                const lastMonthSpendingByCategory = calculateSpendingByCategory(lastMonthExpenses);
+                    let monthlyComparisonHtml = '';
+                    const currentMonthName = now.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+                    const lastMonthName = new Date(lastYear, lastMonth).toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
-                let monthlyComparisonHtml = '';
-                const currentMonthName = now.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-                const lastMonthName = new Date(lastYear, lastMonth).toLocaleString('en-US', { month: 'long', year: 'numeric' });
-
-
-                if (totalCurrentMonthSpent > 0 && totalLastMonthSpent === 0) {
-                     monthlyComparisonHtml = `
-                        <p><i class="fas fa-money-bill-wave" aria-hidden="true"></i> In ${currentMonthName}, you've spent <strong>${formatCurrency(totalCurrentMonthSpent)}</strong>. Great start to your tracking journey! 💰</p>
-                    `;
-                } else if (totalCurrentMonthSpent > totalLastMonthSpent) {
-                    const diff = totalCurrentMonthSpent - totalLastMonthSpent;
-                    const percentage = (diff / (totalLastMonthSpent || 1)) * 100; 
-                    monthlyComparisonHtml = `
-                        <p class="bad-news">
-                            <i class="fas fa-arrow-trend-up" aria-hidden="true"></i> Your spending in ${currentMonthName} is <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% higher)</strong> than ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Let's review where that extra cash went! 💸
-                        </p>
-                    `;
-                } else if (totalCurrentMonthSpent < totalLastMonthSpent && totalCurrentMonthSpent >= 0) { 
-                    const diff = totalLastMonthSpent - totalCurrentMonthSpent;
-                    const percentage = (diff / totalLastMonthSpent) * 100;
-                    monthlyComparisonHtml = `
-                        <p class="good-news">
-                            <i class="fas fa-arrow-trend-down" aria-hidden="true"></i> Excellent! You spent <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% less)</strong> in ${currentMonthName} compared to ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Keep up the smart saving! ✨
-                        </p>
-                    `;
-                } else if (totalCurrentMonthSpent === totalLastMonthSpent && totalCurrentMonthSpent > 0) {
-                    monthlyComparisonHtml = `
-                        <p><i class="fas fa-balance-scale-left" aria-hidden="true"></i> Your spending in ${currentMonthName} is consistent with ${lastMonthName}, totaling around <strong>${formatCurrency(totalCurrentMonthSpent)}</strong>. Steady financial management! 👍</p>
-                    `;
-                } else { 
-                     monthlyComparisonHtml = `
-                        <p><i class="fas fa-calendar-alt" aria-hidden="true"></i> No spending recorded for ${currentMonthName} or ${lastMonthName}. Let's get tracking your next expenses! 🧐</p>
-                     `;
-                }
-                summaryContentDiv.innerHTML += monthlyComparisonHtml;
-
-                if (currentMonthExpenses.length > 0) {
-                    const sortedCategories = Object.entries(currentMonthSpendingByCategory)
-                        .sort(([, a], [, b]) => b - a)
-                        .slice(0, 3); 
-
-                    if (sortedCategories.length > 0) {
-                        const topCategoriesText = sortedCategories.map(([category, amount]) => {
-                            const percentOfTotal = (amount / totalCurrentMonthSpent) * 100;
-                            return `<strong>${stripEmojis(category)}</strong> (${formatCurrency(amount)}, ${percentOfTotal.toFixed(1)}% of total)`;
-                        }).join(', ');
-                        summaryContentDiv.innerHTML += `
-                            <p><i class="fas fa-boxes" aria-hidden="true"></i> Your top ${sortedCategories.length} spending areas this month: ${topCategoriesText}.
-                            Knowing these can help you identify where to focus for potential savings! 💡</p>
+                    if (totalCurrentMonthSpent > 0 && totalLastMonthSpent === 0) {
+                        monthlyComparisonHtml = `
+                            <p><i class="fas fa-money-bill-wave" aria-hidden="true"></i> In ${currentMonthName}, you've spent <strong>${formatCurrency(totalCurrentMonthSpent)}</strong>. Great start to your tracking journey! 💰</p>
                         `;
-                    }
-                    
-                    const categoryChanges = [];
-                    const changeThreshold = 50; 
-                    const minAmountThreshold = 500; 
-
-                    for (const category in currentMonthSpendingByCategory) {
-                        const currentMonthAmount = currentMonthSpendingByCategory[category];
-                        const lastMonthAmount = lastMonthSpendingByCategory[category] || 0;
-
-                        if (currentMonthAmount >= minAmountThreshold) { 
-                            if (lastMonthAmount > 0) { 
-                                const percentageChange = ((currentMonthAmount - lastMonthAmount) / lastMonthAmount) * 100;
-                                if (percentageChange > changeThreshold) {
-                                    categoryChanges.push(`<strong>${stripEmojis(category)}</strong> (up ${percentageChange.toFixed(0)}%)`);
-                                }
-                            } else { 
-                                categoryChanges.push(`<strong>${stripEmojis(category)}</strong> (new significant spending)`);
-                            }
-                        }
-                    }
-
-                    if (categoryChanges.length > 0) {
-                        summaryContentDiv.innerHTML += `
+                    } else if (totalCurrentMonthSpent > totalLastMonthSpent) {
+                        const diff = totalCurrentMonthSpent - totalLastMonthSpent;
+                        const percentage = (diff / (totalLastMonthSpent || 1)) * 100; 
+                        monthlyComparisonHtml = `
                             <p class="bad-news">
-                                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> You might want to check your spending in: ${categoryChanges.join(', ')}. 
-                                These areas saw significant changes recently. 😬
+                                <i class="fas fa-arrow-trend-up" aria-hidden="true"></i> Your spending in ${currentMonthName} is <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% higher)</strong> than ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Let's review where that extra cash went! 💸
                             </p>
                         `;
-                    }
-
-                    const largestExpense = currentMonthExpenses.reduce((max, exp) => (exp.amount > (max ? max.amount : 0)) ? exp : max, null);
-                    if (largestExpense) {
-                        summaryContentDiv.innerHTML += `
-                            <p><i class="fas fa-hand-holding-usd" aria-hidden="true"></i> Your single largest expense this month was <strong>${formatCurrency(largestExpense.amount)}</strong> for "${largestExpense.description}" in "${stripEmojis(largestExpense.category)}". Big spending calls for careful consideration! 💸</p>
+                    } else if (totalCurrentMonthSpent < totalLastMonthSpent && totalCurrentMonthSpent >= 0) { 
+                        const diff = totalLastMonthSpent - totalCurrentMonthSpent;
+                        const percentage = (diff / totalLastMonthSpent) * 100;
+                        monthlyComparisonHtml = `
+                            <p class="good-news">
+                                <i class="fas fa-arrow-trend-down" aria-hidden="true"></i> Excellent! You spent <strong>${formatCurrency(diff)} (${percentage.toFixed(1)}% less)</strong> in ${currentMonthName} compared to ${lastMonthName}'s ${formatCurrency(totalLastMonthSpent)}. Keep up the smart saving! ✨
+                            </p>
+                        `;
+                    } else if (totalCurrentMonthSpent === totalLastMonthSpent && totalCurrentMonthSpent > 0) {
+                        monthlyComparisonHtml = `
+                            <p><i class="fas fa-balance-scale-left" aria-hidden="true"></i> Your spending in ${currentMonthName} is consistent with ${lastMonthName}, totaling around <strong>${formatCurrency(totalCurrentMonthSpent)}</strong>. Steady financial management! 👍</p>
+                        `;
+                    } else { 
+                        monthlyComparisonHtml = `
+                            <p><i class="fas fa-calendar-alt" aria-hidden="true"></i> No spending recorded for ${currentMonthName} or ${lastMonthName}. Let's get tracking your next expenses! 🧐</p>
                         `;
                     }
-                } else {
-                     summaryContentDiv.innerHTML += `<p><i class="fas fa-smile-beam" aria-hidden="true"></i> No spending recorded for ${currentMonthName} yet. A fresh start for tracking your finances! 🆕</p>`;
+                    newSummaryHtml += monthlyComparisonHtml; // Append to new summary HTML
+
+                    if (currentMonthExpenses.length > 0) {
+                        const sortedCategories = Object.entries(currentMonthSpendingByCategory)
+                            .sort(([, a], [, b]) => b - a)
+                            .slice(0, 3); 
+
+                        if (sortedCategories.length > 0) {
+                            const topCategoriesText = sortedCategories.map(([category, amount]) => {
+                                const percentOfTotal = (amount / totalCurrentMonthSpent) * 100;
+                                return `<strong>${stripEmojis(category)}</strong> (${formatCurrency(amount)}, ${percentOfTotal.toFixed(1)}% of total)`;
+                            }).join(', ');
+                            newSummaryHtml += `
+                                <p><i class="fas fa-boxes" aria-hidden="true"></i> Your top ${sortedCategories.length} spending areas this month: ${topCategoriesText}.
+                                Knowing these can help you identify where to focus for potential savings! 💡</p>
+                            `;
+                        }
+                        
+                        const categoryChanges = [];
+                        const changeThreshold = 50; 
+                        const minAmountThreshold = 500; 
+
+                        for (const category in currentMonthSpendingByCategory) {
+                            const currentMonthAmount = currentMonthSpendingByCategory[category];
+                            const lastMonthAmount = lastMonthSpendingByCategory[category] || 0;
+
+                            if (currentMonthAmount >= minAmountThreshold) { 
+                                if (lastMonthAmount > 0) { 
+                                    const percentageChange = ((currentMonthAmount - lastMonthAmount) / lastMonthAmount) * 100;
+                                    if (percentageChange > changeThreshold) {
+                                        categoryChanges.push(`<strong>${stripEmojis(category)}</strong> (up ${percentageChange.toFixed(0)}%)`);
+                                    }
+                                } else { 
+                                    categoryChanges.push(`<strong>${stripEmojis(category)}</strong> (new significant spending)`);
+                                }
+                            }
+                        }
+
+                        if (categoryChanges.length > 0) {
+                            newSummaryHtml += `
+                                <p class="bad-news">
+                                    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> You might want to check your spending in: ${categoryChanges.join(', ')}. 
+                                    These areas saw significant changes recently. 😬
+                                </p>
+                            `;
+                        }
+
+                        const largestExpense = currentMonthExpenses.reduce((max, exp) => (exp.amount > (max ? max.amount : 0)) ? exp : max, null);
+                        if (largestExpense) {
+                            newSummaryHtml += `
+                                <p><i class="fas fa-hand-holding-usd" aria-hidden="true"></i> Your single largest expense this month was <strong>${formatCurrency(largestExpense.amount)}</strong> for "${largestExpense.description}" in "${stripEmojis(largestExpense.category)}". Big spending calls for careful consideration! 💸</p>
+                            `;
+                        }
+                    } else {
+                        newSummaryHtml += `<p><i class="fas fa-smile-beam" aria-hidden="true"></i> No spending recorded for ${currentMonthName} yet. A fresh start for tracking your finances! 🆕</p>`;
+                    }
+
+                    newSummaryHtml += `
+                        <p style="border:none; margin-top:18px; text-align:center; font-style: italic; font-size: 0.85rem; color: rgba(255,255,255,0.6); background: none; padding-top: 5px; padding-bottom: 5px;">
+                            *Insights based on available data and general spending patterns. Always cross-check!*
+                        </p>
+                    `;
                 }
 
-                summaryContentDiv.innerHTML += `
-                    <p style="border:none; margin-top:18px; text-align:center; font-style: italic; font-size: 0.85rem; color: rgba(255,255,255,0.6); background: none; padding-top: 5px; padding-bottom: 5px;">
-                        *Insights based on available data and general spending patterns. Always cross-check!*
-                    </p>
-                `;
+                // OPTIMIZATION: Only update innerHTML if content has actually changed
+                if (summaryContentDiv.innerHTML.trim() !== newSummaryHtml.trim()) {
+                    summaryContentDiv.innerHTML = newSummaryHtml;
+                }
             };
 
             const updateSortIcons = () => {
@@ -1054,9 +1063,6 @@
 
                 // Append the new row directly
                 const newRow = createExpenseRow(newExpense);
-                // If the table is filtered/sorted, we still need to decide where to put the new item.
-                // For simplicity for `Add Expense`, we'll assume adding to top if filters allow it.
-                // If current filters don't include this new item, it won't appear until filters change.
                 const expensesToRender = getFilteredAndSortedExpenses();
                 if (expensesToRender[0] && expensesToRender[0].id === newExpense.id) { // Check if new item is top of the sorted list
                      expenseTableBody.prepend(newRow); // Add at the top for immediate visibility
@@ -1098,7 +1104,7 @@
                             updateTotal();
                             updateExpenseSummary();
                             // If table becomes empty, display the "No expenses" message
-                            if (expenseTableBody.children.length === 0 || expenseTableBody.children[0].tagName === 'TR' && expenseTableBody.children[0].children[0].getAttribute('colspan') === '5') {
+                            if (expenseTableBody.children.length === 0 || (expenseTableBody.children.length === 1 && expenseTableBody.children[0].tagName === 'TR' && expenseTableBody.children[0].children[0].getAttribute('colspan') === '5')) {
                                 // This check handles if after deleting, filters leave an empty visible list
                                 renderExpenses(); 
                             }
@@ -1118,7 +1124,6 @@
                     persistExpensesToLocalStorage();
 
                     const newRow = createExpenseRow(duplicatedExpense);
-                    // Again, assume prepending for simplicity, re-render if filters conflict
                     const expensesToRender = getFilteredAndSortedExpenses();
                     if (expensesToRender[0] && expensesToRender[0].id === duplicatedExpense.id) {
                          expenseTableBody.prepend(newRow);
@@ -1170,8 +1175,6 @@
                         const date = new Date(updatedExpense.date + 'T00:00:00Z'); 
                         const formattedDate = date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
-                        // Update individual cells, or replace innerHTML but keep event listeners via parent
-                        // A more robust way would be to create new TDs, but for small changes direct content is fine.
                         existingRow.children[0].textContent = formattedDate; // Date
                         existingRow.children[1].textContent = stripEmojis(updatedExpense.category); // Category
                         existingRow.children[2].textContent = updatedExpense.description; // Description
